@@ -29,6 +29,8 @@
 #define DynamicMemorySizeOpCode 	0x14
 #define DeleteMOPOpCode 			0x15
 #define LocalDeviceIDOpCode 		0x16
+#define AdminOpCode					0x17
+#define AccessCodeOpCode			0x18
 
 heepByte accessCode [ACCESS_CODE_SIZE];
 unsigned char deviceMemory [MAX_MEMORY];
