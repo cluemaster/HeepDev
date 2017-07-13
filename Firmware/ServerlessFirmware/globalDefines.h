@@ -20,6 +20,8 @@
 
 //#define USE_INDEXED_IDS
 
+#define ACCESS_CODE_SIZE 8
+
 #define STANDARD_ID_SIZE 4
 
 #ifdef USE_INDEXED_IDS

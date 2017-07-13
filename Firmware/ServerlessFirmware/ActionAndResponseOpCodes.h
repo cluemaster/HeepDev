@@ -399,7 +399,13 @@ void ExecuteAddMOPOpCode()
 
 void ExecuteControlOpCodes()
 {
+	// Get Op Code
 	unsigned char ReceivedOpCode = inputBuffer[0];
+
+	// Get Access Code
+	
+
+	// Execute Op Code
 	if(ReceivedOpCode == IsHeepDeviceOpCode)
 	{
 		ExecuteMemoryDumpOpCode();

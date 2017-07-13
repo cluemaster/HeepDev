@@ -30,6 +30,7 @@
 #define DeleteMOPOpCode 			0x15
 #define LocalDeviceIDOpCode 		0x16
 
+heepByte accessCode [ACCESS_CODE_SIZE];
 unsigned char deviceMemory [MAX_MEMORY];
 unsigned int curFilledMemory = 0; // Indicate the curent filled memory. 
 						 // Also serve as a place holder to 
@@ -473,4 +474,17 @@ heepByte GetDeviceIDFromIndex_Byte(heepByte* index, heepByte* returnedID)
 	GetDeviceIDOrLocalIDFromBuffer(index, returnedID, 0);
 	return STANDARD_ID_SIZE; // Index is just device ID!
 #endif
+}
+
+heepByte CheckBufferEqualityFromStartPoint(heepByte* buffer1, heepByte* buffer2, unsigned long pointer1, unsigned long pointer2, unsigned long numBytes)
+{
+	for(int i = 0; i < numBytes; i++)
+	{
+		if(buffer1[pointer1 + i] != buffer2[pointer2 + i])
+		{
+			return 0;
+		}
+	}
+
+	return 1;
 }
