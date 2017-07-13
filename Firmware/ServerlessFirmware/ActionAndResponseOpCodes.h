@@ -179,7 +179,7 @@ void ExecuteMemoryDumpOpCode()
 
 void ExecuteSetValOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 1 + ACCESS_CODE_SIZE;
 	unsigned char numBytes = inputBuffer[counter++];
 	unsigned char controlID = inputBuffer[counter++];
 	unsigned int value = GetNumberFromBuffer(inputBuffer, &counter, numBytes - 1);
@@ -201,7 +201,7 @@ void ExecuteSetValOpCode()
 // Updatded
 void ExecuteSetPositionOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 1 + ACCESS_CODE_SIZE;
 	unsigned char numBytes = inputBuffer[counter++];
 	unsigned int xValue = GetNumberFromBuffer(inputBuffer, &counter, 2);
 	unsigned int yValue = GetNumberFromBuffer(inputBuffer, &counter, 2);
@@ -218,7 +218,7 @@ void ExecuteSetVertexOpCode()
 	struct Vertex_Byte myVertex;
 
 	unsigned int localCounter = 0;
-	unsigned int counter = 1;
+	unsigned int counter = 1 + ACCESS_CODE_SIZE;
 	unsigned char numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	AddBufferToBuffer(myVertex.txID, inputBuffer, STANDARD_ID_SIZE, &localCounter, &counter);
 	localCounter = 0;
@@ -248,7 +248,7 @@ void ExecuteDeleteVertexOpCode()
 	struct Vertex_Byte myVertex;
 
 	unsigned int localCounter = 0;
-	unsigned int counter = 1;
+	unsigned int counter = 1 + ACCESS_CODE_SIZE;
 	unsigned char numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	AddBufferToBuffer(myVertex.txID, inputBuffer, STANDARD_ID_SIZE, &localCounter, &counter);
 	localCounter = 0;
@@ -313,7 +313,7 @@ int ValidateAndRestructureIncomingMOP(unsigned int MOPStartAddr, unsigned int* n
 
 void ExecuteDeleteMOPOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 1 + ACCESS_CODE_SIZE;
 
 	unsigned int numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	int dataError = ValidateAndRestructureIncomingMOP(counter, &numBytes);
@@ -370,7 +370,7 @@ void ExecuteDeleteMOPOpCode()
 
 void ExecuteAddMOPOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 1 + ACCESS_CODE_SIZE;
 
 	unsigned int numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 
