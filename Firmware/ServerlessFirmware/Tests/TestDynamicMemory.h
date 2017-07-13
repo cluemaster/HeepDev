@@ -1206,6 +1206,42 @@ void TestGetVertex_Byte()
 	CheckResults(TestName, valueList, 8);
 }
 
+void TestBufferEqualityAtPointer()
+{
+	std::string TestName = "Buffer Equality at Pointer";
+
+	heepByte buffer1[11] = {0, 5, 3, 1, 2, 3, 4, 5, 6, 1, 11};
+	heepByte buffer2[9] = {4, 1, 2, 3, 4, 5, 6, 0, 16};
+
+	heepByte bufferEqual = CheckBufferEqualityFromStartPoint(buffer1, buffer2, 3, 1, 6);
+
+	ExpectedValue valueList [1];
+
+	valueList[0].valueName = "Buffers Equal";
+	valueList[0].expectedValue = 1;
+	valueList[0].actualValue = bufferEqual;
+
+	CheckResults(TestName, valueList, 1);
+}
+
+void TestBufferInEqualityAtPointer()
+{
+	std::string TestName = "Buffer Inequality at Pointer";
+
+	heepByte buffer1[11] = {0, 5, 3, 1, 2, 3, 4, 5, 6, 1, 11};
+	heepByte buffer2[9] = {4, 1, 2, 3, 4, 5, 7, 0, 16};
+
+	heepByte bufferEqual = CheckBufferEqualityFromStartPoint(buffer1, buffer2, 3, 1, 6);
+
+	ExpectedValue valueList [1];
+
+	valueList[0].valueName = "Buffers Equal";
+	valueList[0].expectedValue = 0;
+	valueList[0].actualValue = bufferEqual;
+
+	CheckResults(TestName, valueList, 1);
+}
+
 void TestDynamicMemory()
 {	
 	TestAddIPToDeviceMemory();
@@ -1237,4 +1273,6 @@ void TestDynamicMemory()
  	TestSetIPOpCode_Byte();
  	TestSetVertexOpCode_Byte();
  	TestGetVertex_Byte();
+ 	TestBufferEqualityAtPointer();
+ 	TestBufferInEqualityAtPointer();
 }
