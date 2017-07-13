@@ -19,6 +19,24 @@ void PrintBuffer(unsigned char *buffer, unsigned long bufferSize)
 	cout << endl;
 }
 
+int AddAccessCodeToBuffer(heepByte* buffer, int startVal)
+{
+	for(int i = 0; i < ACCESS_CODE_SIZE; i++)
+	{
+		buffer[i+startVal] = i;
+	}
+
+	return startVal+ACCESS_CODE_SIZE;
+}
+
+void GenerateAccessCode()
+{
+	for(int i = 0; i < ACCESS_CODE_SIZE; i++)
+	{
+		accessCode[i] = i;
+	}
+}
+
 void TestClearOutputBufferAndAddChar()
 {
 	std::string TestName = "Add Char to Output Buffer and Clear";
@@ -152,24 +170,14 @@ void TestSetValSuccess()
 	theControl.curValue = 50;
 	AddControl(theControl);
 
-	for(int i = 0; i<ACCESS_CODE_SIZE; i++)
-	{
-		accessCode[i] = i;
-	}
+	GenerateAccessCode();
 
 	ClearInputBuffer();
 	inputBuffer[0] = 0x0A;
-	inputBuffer[1] = 0x00;
-	inputBuffer[2] = 0x01;
-	inputBuffer[3] = 0x02;
-	inputBuffer[4] = 0x03;
-	inputBuffer[5] = 0x04;
-	inputBuffer[6] = 0x05;
-	inputBuffer[7] = 0x06;
-	inputBuffer[8] = 0x07;
-	inputBuffer[9] = 0x02;
-	inputBuffer[10] = 0x00;
-	inputBuffer[11] = 0x04;
+	int newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = 0x02;
+	inputBuffer[newCount++] = 0x00;
+	inputBuffer[newCount++] = 0x04;
 	ExecuteControlOpCodes();
 
 	ExpectedValue valueList[2];
