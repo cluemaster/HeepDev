@@ -397,42 +397,58 @@ void ExecuteAddMOPOpCode()
 
 }
 
+heepByte VerifyAccessCode()
+{
+
+	heepByte accessCodePassed = CheckBufferEqualityFromStartPoint(inputBuffer, accessCode, 1, 0, ACCESS_CODE_SIZE);
+
+	if(!accessCodePassed)
+	{
+		ClearOutputBuffer();
+		char errorMessage [] = "Access Denied";
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+	}
+
+	return accessCodePassed;
+}
+
 void ExecuteControlOpCodes()
 {
 	// Get Op Code
 	unsigned char ReceivedOpCode = inputBuffer[0];
 
 	// Get Access Code
-	
-
-	// Execute Op Code
-	if(ReceivedOpCode == IsHeepDeviceOpCode)
+	if(VerifyAccessCode())
 	{
-		ExecuteMemoryDumpOpCode();
-	}
-	else if(ReceivedOpCode == SetValueOpCode)
-	{
-		ExecuteSetValOpCode();
-	}
-	else if(ReceivedOpCode == SetPositionOpCode)
-	{
-		ExecuteSetPositionOpCode();
-	}
-	else if(ReceivedOpCode == SetVertexOpCode)
-	{
-		ExecuteSetVertexOpCode();
-	}
-	else if(ReceivedOpCode == DeleteVertexOpCode)
-	{
-		ExecuteDeleteVertexOpCode();
-	}
-	else if(ReceivedOpCode == AddMOPOpCode)
-	{
-		ExecuteAddMOPOpCode();
-	}
-	else if(ReceivedOpCode == DeleteMOPOpCode)
-	{
-		ExecuteDeleteMOPOpCode();
+		// Execute Op Code
+		if(ReceivedOpCode == IsHeepDeviceOpCode)
+		{
+			ExecuteMemoryDumpOpCode();
+		}
+		else if(ReceivedOpCode == SetValueOpCode)
+		{
+			ExecuteSetValOpCode();
+		}
+		else if(ReceivedOpCode == SetPositionOpCode)
+		{
+			ExecuteSetPositionOpCode();
+		}
+		else if(ReceivedOpCode == SetVertexOpCode)
+		{
+			ExecuteSetVertexOpCode();
+		}
+		else if(ReceivedOpCode == DeleteVertexOpCode)
+		{
+			ExecuteDeleteVertexOpCode();
+		}
+		else if(ReceivedOpCode == AddMOPOpCode)
+		{
+			ExecuteAddMOPOpCode();
+		}
+		else if(ReceivedOpCode == DeleteMOPOpCode)
+		{
+			ExecuteDeleteMOPOpCode();
+		}
 	}
 }
 
