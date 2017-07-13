@@ -208,11 +208,14 @@ void TestSetValFailure()
 	theControl.curValue = 50;
 	AddControl(theControl);
 
+	GenerateAccessCode();
+
 	ClearInputBuffer();
 	inputBuffer[0] = 0x0A;
-	inputBuffer[1] = 0x02;
-	inputBuffer[2] = 0x01;
-	inputBuffer[3] = 0x04;
+	int newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = 0x02;
+	inputBuffer[newCount++] = 0x01;
+	inputBuffer[newCount++] = 0x04;
 	ExecuteControlOpCodes();
 
 	ExpectedValue valueList[2];
@@ -234,13 +237,16 @@ void TestSetPositionOpCode()
 	ClearControls();
 	SetDeviceName("Test");
 
+	GenerateAccessCode();
+
 	ClearInputBuffer();
 	inputBuffer[0] = 0x0B;
-	inputBuffer[1] = 0x04;
-	inputBuffer[2] = 0x01;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x10;
-	inputBuffer[5] = 0x10;
+	int newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = 0x04;
+	inputBuffer[newCount++] = 0x01;
+	inputBuffer[newCount++] = 0x01;
+	inputBuffer[newCount++] = 0x10;
+	inputBuffer[newCount++] = 0x10;
 	ExecuteControlOpCodes();
 	heepByte deviceID [STANDARD_ID_SIZE] = {0x06, 0x04, 0x06, 0x01};
 	int x = 0; int y = 0; unsigned int xyMemPosition = 0; 
@@ -257,11 +263,12 @@ void TestSetPositionOpCode()
 
 	ClearInputBuffer();
 	inputBuffer[0] = 0x0B;
-	inputBuffer[1] = 0x04;
-	inputBuffer[2] = 0xF1;
-	inputBuffer[3] = 0x02;
-	inputBuffer[4] = 0xB2;
-	inputBuffer[5] = 0x3C;
+	newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = 0x04;
+	inputBuffer[newCount++] = 0xF1;
+	inputBuffer[newCount++] = 0x02;
+	inputBuffer[newCount++] = 0xB2;
+	inputBuffer[newCount++] = 0x3C;
 	ExecuteControlOpCodes();
 	GetXYFromMemory_Byte(&x, &y, deviceID, &xyMemPosition);
 
@@ -284,26 +291,29 @@ void TestSetVertxCOP()
 	ClearDeviceMemory();
 	ClearInputBuffer();
 
+	GenerateAccessCode();
+
 	inputBuffer[0] = 0x0C;
-	inputBuffer[1] = 0x04;
+	int newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = 0x04;
 
-	inputBuffer[2] = 0xF1;
-	inputBuffer[3] = 0x02;
-	inputBuffer[4] = 0xB2;
-	inputBuffer[5] = 0x3C;
+	inputBuffer[newCount++] = 0xF1;
+	inputBuffer[newCount++] = 0x02;
+	inputBuffer[newCount++] = 0xB2;
+	inputBuffer[newCount++] = 0x3C;
 
-	inputBuffer[6] = 0x1A;
-	inputBuffer[7] = 0x2D;
-	inputBuffer[8] = 0x40;
-	inputBuffer[9] = 0x02;
+	inputBuffer[newCount++] = 0x1A;
+	inputBuffer[newCount++] = 0x2D;
+	inputBuffer[newCount++] = 0x40;
+	inputBuffer[newCount++] = 0x02;
 
-	inputBuffer[10] = 0x01;
-	inputBuffer[11] = 0x02;
+	inputBuffer[newCount++] = 0x01;
+	inputBuffer[newCount++] = 0x02;
 
-	inputBuffer[12] = 0xC0;
-	inputBuffer[13] = 0xD0;
-	inputBuffer[14] = 0x20;
-	inputBuffer[15] = 0x02;
+	inputBuffer[newCount++] = 0xC0;
+	inputBuffer[newCount++] = 0xD0;
+	inputBuffer[newCount++] = 0x20;
+	inputBuffer[newCount++] = 0x02;
 	ExecuteControlOpCodes();
 
 	Vertex_Byte newVertex;
@@ -355,23 +365,26 @@ void TestAddMOPOpCode()
 	ClearDeviceMemory();
 	ClearInputBuffer();
 
+	GenerateAccessCode();
+
 	// Add a random clients name
 	inputBuffer[0] = 0x13;
-	inputBuffer[1] = 0x0B;
+	int newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = 0x0B;
 
-	inputBuffer[2] = 0x06;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x02;
-	inputBuffer[5] = 0x03;
-	inputBuffer[6] = 0x04;
-	inputBuffer[7] = 0x05;
+	inputBuffer[newCount++] = 0x06;
+	inputBuffer[newCount++] = 0x01;
+	inputBuffer[newCount++] = 0x02;
+	inputBuffer[newCount++] = 0x03;
+	inputBuffer[newCount++] = 0x04;
+	inputBuffer[newCount++] = 0x05;
 
-	inputBuffer[8] = 'J';
-	inputBuffer[9] = 'a';
-	inputBuffer[10] = 'm';
+	inputBuffer[newCount++] = 'J';
+	inputBuffer[newCount++] = 'a';
+	inputBuffer[newCount++] = 'm';
 
-	inputBuffer[11] = 'e';
-	inputBuffer[12] = 's';
+	inputBuffer[newCount++] = 'e';
+	inputBuffer[newCount++] = 's';
 
 	unsigned int beforeMemory = curFilledMemory;
 
@@ -424,6 +437,8 @@ void TestDeleteMOPOpCode()
 	ClearDeviceMemory();
 	ClearInputBuffer();
 
+	GenerateAccessCode();
+
 	heepByte deviceID[STANDARD_ID_SIZE] = {0x01, 0x02, 0x03, 0x04};
 	char* device1Name = "Jacob";
 	SetDeviceNameInMemory_Byte(device1Name, strlen(device1Name), deviceID);
@@ -433,21 +448,22 @@ void TestDeleteMOPOpCode()
 
 	// Add a random clients name
 	inputBuffer[0] = 0x15;
-	inputBuffer[1] = 0x0B;
+	int newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = 0x0B;
 
-	inputBuffer[2] = 0x06;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x02;
-	inputBuffer[5] = 0x03;
-	inputBuffer[6] = 0x04;
-	inputBuffer[7] = 0x05;
+	inputBuffer[newCount++] = 0x06;
+	inputBuffer[newCount++] = 0x01;
+	inputBuffer[newCount++] = 0x02;
+	inputBuffer[newCount++] = 0x03;
+	inputBuffer[newCount++] = 0x04;
+	inputBuffer[newCount++] = 0x05;
 
-	inputBuffer[8] = 'J';
-	inputBuffer[9] = 'a';
-	inputBuffer[10] = 'm';
+	inputBuffer[newCount++] = 'J';
+	inputBuffer[newCount++] = 'a';
+	inputBuffer[newCount++] = 'm';
 
-	inputBuffer[11] = 'e';
-	inputBuffer[12] = 's';
+	inputBuffer[newCount++] = 'e';
+	inputBuffer[newCount++] = 's';
 
 #ifdef USE_INDEXED_IDS
 	unsigned char valAtSpotBeforeDeleteion = deviceMemory[15];
