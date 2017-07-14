@@ -164,6 +164,21 @@ void SetIconDataInMemory_Byte(char* iconData, int numCharacters, heepByte* devic
 	}
 }
 
+void SetAccessCodeInMemory()
+{
+	// There is one and only one access code. Must delete previous one if it exists, and then add.
+	PerformPreOpCodeProcessing_Byte(deviceIDByte);
+
+	AddNewCharToMemory(AccessCodeOpCode);
+	AddIndexOrDeviceIDToMemory_Byte(deviceIDByte);
+	AddNewCharToMemory((char)ACCESS_CODE_SIZE);
+
+	for(int i = 0; i < ACCESS_CODE_SIZE; i++)
+	{
+		AddNewCharToMemory(accessCode[i]);
+	}
+}
+
 unsigned int ParseXYOpCode_Byte(int *x, int *y, heepByte* deviceID, unsigned int counter)
 {
 	counter ++;
