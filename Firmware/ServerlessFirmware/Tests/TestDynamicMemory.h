@@ -29,6 +29,14 @@ int GetMemCounterStart()
 #endif
 }
 
+void GenerateAccessCodeMem()
+{
+	for(int i = 0; i < ACCESS_CODE_SIZE; i++)
+	{
+		accessCode[i] = i;
+	}
+}
+
 void TestAddCharToBuffer()
 {
 	std::string TestName = "Add Char to Buffer";
@@ -1167,8 +1175,6 @@ void TestGetVertex_Byte()
 	Vertex_Byte newVertex;
 	int success = GetVertexAtPointer_Byte(memCheckStart, &newVertex);
 
-	PrintDeviceMemory();
-
 	ExpectedValue valueList [8];
 
 	valueList[0].valueName = "TX Control ID";
@@ -1242,6 +1248,25 @@ void TestBufferInEqualityAtPointer()
 	CheckResults(TestName, valueList, 1);
 }
 
+void TestAccessCode()
+{
+	std::string TestName = "Access Code Store in Memory";
+
+	ClearDeviceMemory();
+
+	CreateFakeDeviceID(deviceIDByte);
+	GenerateAccessCodeMem();
+	SetAccessCodeInMemory();
+
+	ExpectedValue valueList [1];
+
+	valueList[0].valueName = "Buffers Equal";
+	valueList[0].expectedValue = 0;
+	valueList[0].actualValue = bufferEqual;
+
+	CheckResults(TestName, valueList, 1);
+}
+
 void TestDynamicMemory()
 {	
 	TestAddIPToDeviceMemory();
@@ -1275,4 +1300,5 @@ void TestDynamicMemory()
  	TestGetVertex_Byte();
  	TestBufferEqualityAtPointer();
  	TestBufferInEqualityAtPointer();
+ 	TestAccessCode();
 }
