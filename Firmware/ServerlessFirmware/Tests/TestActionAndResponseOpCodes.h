@@ -72,8 +72,6 @@ void TestMemoryDumpROP()
 	ClearOutputBuffer();
 	FillOutputBufferWithMemoryDump();
 
-	PrintOutputBuffer();
-
 	ExpectedValue valueList[10];
 	valueList[0].valueName = "Memory Dump";
 	valueList[0].expectedValue = MemoryDumpOpCode;

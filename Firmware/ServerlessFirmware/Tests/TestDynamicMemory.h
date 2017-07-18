@@ -546,8 +546,6 @@ void TestGetDeviceIndexByteWise()
 	heepByte retSize3 = GetIndexedDeviceID_Byte(myID3);
 	heepByte retSize4 = GetIndexedDeviceID_Byte(myID4);
 
-	PrintDeviceMemory();
-
 #ifdef USE_INDEXED_IDS
 
 	unsigned int startCount = 0;
@@ -759,8 +757,6 @@ void TestGetDeviceIDFromIndexByteWise()
 	GetDeviceIDFromIndex_Byte(myID3, retID3);
 	GetDeviceIDFromIndex_Byte(myID4, retID4);
 
-	PrintDeviceMemory();
-
 	ExpectedValue valueList [5];
 	valueList[0].valueName = "Index Value 1";
 	valueList[0].expectedValue = 1;
@@ -854,8 +850,6 @@ void TestDeviceNameOpCode_Byte()
 	valueList[6].actualValue = deviceMemory[memCheckStart + ID_SIZE + 6];
 
 	CheckResults(TestName, valueList, 7);
-
-	PrintDeviceMemory();
 }
 
 void TestIconIDOpCode_Byte()
