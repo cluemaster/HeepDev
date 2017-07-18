@@ -1260,9 +1260,9 @@ void TestAccessCode()
 
 	ExpectedValue valueList [1];
 
-	valueList[0].valueName = "Buffers Equal";
-	valueList[0].expectedValue = 0;
-	valueList[0].actualValue = bufferEqual;
+	valueList[0].valueName = "Access Code 1st Byte";
+	valueList[0].expectedValue = accessCode[0];
+	valueList[0].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 1];
 
 	CheckResults(TestName, valueList, 1);
 }
