@@ -450,6 +450,13 @@ void ExecuteControlOpCodes()
 			ExecuteDeleteMOPOpCode();
 		}
 	}
+	else
+	{
+		if(ReceivedOpCode == IsHeepDeviceOpCode)
+		{
+			ExecuteMemoryDumpOpCode();
+		}
+	}
 }
 
 #endif
