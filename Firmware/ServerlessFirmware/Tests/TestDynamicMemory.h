@@ -1258,13 +1258,17 @@ void TestAccessCode()
 	GenerateAccessCodeMem();
 	SetAccessCodeInMemory();
 
-	ExpectedValue valueList [1];
+	ExpectedValue valueList [2];
 
 	valueList[0].valueName = "Access Code 1st Byte";
 	valueList[0].expectedValue = accessCode[0];
 	valueList[0].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 1];
 
-	CheckResults(TestName, valueList, 1);
+	valueList[1].valueName = "Access Code 3rd Byte";
+	valueList[1].expectedValue = accessCode[2];
+	valueList[1].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 3];
+
+	CheckResults(TestName, valueList, 2);
 }
 
 void TestDynamicMemory()
