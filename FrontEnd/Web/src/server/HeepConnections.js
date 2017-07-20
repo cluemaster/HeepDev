@@ -123,8 +123,9 @@ export var PrepVertexForCOP = (vertex, COP) => {
   var rxIP = byteUtils.ConvertIPAddressToByteArray(vertex.rxIP);
   var packet = txDeviceID.concat(rxDeviceID, txControlID, rxControlID, rxIP);
   var numBytes = [packet.length];
+  var accessCodeMaster = GetMasterAccessCode();
 
-  return Buffer.from([COP].concat(numBytes, packet));
+  return Buffer.from([COP].concat(accessCodeMaster, numBytes, packet));
 }
 
 var CheckIfNewValueAndSet = (deviceID, controlID, newValue) => {
