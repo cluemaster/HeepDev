@@ -80,7 +80,9 @@ export var SendValueToHeepDevice = (deviceID, controlID, newValue) => {
     var controlByteArray = byteUtils.GetByteArrayFromValue(controlID);
     var valueByteArray = byteUtils.GetByteArrayFromValue(newValue);
     var numBytes = [controlByteArray.length + valueByteArray.length];
-    var messageBuffer = Buffer.from([0x0A].concat(numBytes, controlByteArray, valueByteArray));
+    var accessCodeMaster = GetMasterAccessCode();
+
+    var messageBuffer = Buffer.from([0x0A].concat(accessCodeMaster, numBytes, controlByteArray, valueByteArray));
     console.log('Connecting to Device ', deviceID + ' at IPAddress: ' + IPAddress);
     console.log('Data Packet: ',  messageBuffer);
     ConnectToHeepDevice(IPAddress, heepPort, messageBuffer)
