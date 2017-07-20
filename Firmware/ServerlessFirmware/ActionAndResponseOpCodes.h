@@ -402,6 +402,14 @@ heepByte VerifyAccessCode()
 
 	heepByte accessCodePassed = CheckBufferEqualityFromStartPoint(inputBuffer, accessCode, 1, 0, ACCESS_CODE_SIZE);
 
+#ifdef USE_MASTER_ACCESS_CODE
+	if(!accessCodePassed)
+	{
+		GET_MASTER_ACCESS_CODE
+		accessCodePassed = CheckBufferEqualityFromStartPoint(inputBuffer, masterAccessCode, 1, 0, ACCESS_CODE_SIZE);
+	}
+#endif
+
 	if(!accessCodePassed)
 	{
 		ClearOutputBuffer();
