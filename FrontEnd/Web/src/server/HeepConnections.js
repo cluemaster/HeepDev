@@ -18,6 +18,16 @@ var heepPort = 5000;
 var searchComplete = false;
 var mostRecentSearch = {};
 
+var GetMasterAccessCode = () =>{
+  var accessCodeMaster = [];
+
+  for (var i = 0; i < 8; i++){ 
+    accessCodeMaster.push(i*15);
+  }
+
+  return accessCodeMaster
+}
+
 export var SearchForHeepDevices = () => {
   var gateway = findGateway();
   var searchBuffer = Buffer.from([0x09, 0x00])
@@ -55,8 +65,9 @@ export var SendPositionToHeepDevice = (deviceID, position) => {
   var yPosition = byteUtils.GetValueAsFixedSizeByteArray(position.top, 2);
   var packet = xPosition.concat(yPosition);
   var numBytes = [packet.length];
+  var accessCodeMaster = GetMasterAccessCode();
 
-  var messageBuffer = Buffer.from([0x0B].concat(numBytes, packet));
+  var messageBuffer = Buffer.from([0x0B].concat(accessCodeMaster,numBytes, packet));
   console.log('Connecting to Device ', deviceID + ' at IPAddress: ' + IPAddress);
   console.log('Data packet: ', messageBuffer);
   ConnectToHeepDevice(IPAddress, heepPort, messageBuffer)
