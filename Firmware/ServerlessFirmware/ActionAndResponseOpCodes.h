@@ -65,6 +65,13 @@ void FillOutputBufferWithSetValCOP(unsigned char controlID, unsigned char value)
 {
 	ClearOutputBuffer();
 	AddNewCharToOutputBuffer(SetValueOpCode);
+	
+	GET_MASTER_ACCESS_CODE
+	for(int i = 0; i < ACCESS_CODE_SIZE; i++)
+	{
+		AddNewCharToMemory(masterAccessCode[i]);
+	}
+
 	AddNewCharToOutputBuffer(2);
 	AddNewCharToOutputBuffer(controlID);
 	AddNewCharToOutputBuffer(value);
