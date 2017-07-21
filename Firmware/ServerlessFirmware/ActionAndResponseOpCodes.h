@@ -65,6 +65,13 @@ void FillOutputBufferWithSetValCOP(unsigned char controlID, unsigned char value)
 {
 	ClearOutputBuffer();
 	AddNewCharToOutputBuffer(SetValueOpCode);
+	
+	GET_MASTER_ACCESS_CODE
+	for(int i = 0; i < ACCESS_CODE_SIZE; i++)
+	{
+		AddNewCharToMemory(masterAccessCode[i]);
+	}
+
 	AddNewCharToOutputBuffer(2);
 	AddNewCharToOutputBuffer(controlID);
 	AddNewCharToOutputBuffer(value);
@@ -401,6 +408,14 @@ heepByte VerifyAccessCode()
 {
 
 	heepByte accessCodePassed = CheckBufferEqualityFromStartPoint(inputBuffer, accessCode, 1, 0, ACCESS_CODE_SIZE);
+
+#ifdef USE_MASTER_ACCESS_CODE
+	if(!accessCodePassed)
+	{
+		GET_MASTER_ACCESS_CODE
+		accessCodePassed = CheckBufferEqualityFromStartPoint(inputBuffer, masterAccessCode, 1, 0, ACCESS_CODE_SIZE);
+	}
+#endif
 
 	if(!accessCodePassed)
 	{

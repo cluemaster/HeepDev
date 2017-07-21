@@ -489,6 +489,83 @@ void TestDeleteMOPOpCode()
 	CheckResults(TestName, valueList, 2);
 }
 
+void TestMasterAccessCodeVerification()
+{
+	std::string TestName = "Test Master Access Code Verification";
+
+	ClearControls();
+	SetDeviceName("Test");
+	Control theControl;
+	theControl.controlName = "Test Control";
+	theControl.controlID = 0;
+	theControl.controlDirection = 1;
+	theControl.controlType = 1;
+	theControl.highValue= 100;
+	theControl.lowValue = 0;
+	theControl.curValue = 50;
+	AddControl(theControl);
+
+	GET_MASTER_ACCESS_CODE
+
+	ClearInputBuffer();
+	inputBuffer[0] = 0x0A;
+	unsigned int newCount = 1;
+	unsigned int txCount = 0;
+	AddBufferToBuffer(inputBuffer, masterAccessCode, ACCESS_CODE_SIZE, &newCount, &txCount);
+	inputBuffer[newCount++] = 0x02;
+	inputBuffer[newCount++] = 0x00;
+	inputBuffer[newCount++] = 0x04;
+	ExecuteControlOpCodes();
+
+	ExpectedValue valueList[2];
+	valueList[0].valueName = "Returned Op Code";
+	valueList[0].expectedValue = SuccessOpCode;
+	valueList[0].actualValue = outputBuffer[0];
+
+	valueList[1].valueName = "Control Value";
+	valueList[1].expectedValue = 4;
+	valueList[1].actualValue = GetControlValueByID(0);
+
+	CheckResults(TestName, valueList, 2);
+}
+
+void TestAccessCodeVerificationFailure()
+{
+	std::string TestName = "Test Access Code Verification Failure";
+
+	ClearControls();
+	SetDeviceName("Test");
+	Control theControl;
+	theControl.controlName = "Test Control";
+	theControl.controlID = 0;
+	theControl.controlDirection = 1;
+	theControl.controlType = 1;
+	theControl.highValue= 100;
+	theControl.lowValue = 0;
+	theControl.curValue = 50;
+	AddControl(theControl);
+
+	GET_MASTER_ACCESS_CODE
+	masterAccessCode[2] = 0;
+
+	ClearInputBuffer();
+	inputBuffer[0] = 0x0A;
+	unsigned int newCount = 1;
+	unsigned int txCount = 0;
+	AddBufferToBuffer(inputBuffer, masterAccessCode, ACCESS_CODE_SIZE, &newCount, &txCount);
+	inputBuffer[newCount++] = 0x02;
+	inputBuffer[newCount++] = 0x00;
+	inputBuffer[newCount++] = 0x04;
+	ExecuteControlOpCodes();
+
+	ExpectedValue valueList[1];
+	valueList[0].valueName = "Returned Op Code";
+	valueList[0].expectedValue = ErrorOpCode;
+	valueList[0].actualValue = outputBuffer[0];
+
+	CheckResults(TestName, valueList, 1);
+}
+
 void TestActionAndResponseOpCodes()
 {
 	TestClearOutputBufferAndAddChar();
@@ -501,4 +578,6 @@ void TestActionAndResponseOpCodes()
 	TestSetVertxCOP();
 	TestAddMOPOpCode();
 	TestDeleteMOPOpCode();
+	TestMasterAccessCodeVerification();
+	TestAccessCodeVerificationFailure();
 }

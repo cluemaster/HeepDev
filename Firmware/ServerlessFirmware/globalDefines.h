@@ -22,6 +22,9 @@
 
 #define ACCESS_CODE_SIZE 8
 
+#define USE_MASTER_ACCESS_CODE
+#define GET_MASTER_ACCESS_CODE heepByte masterAccessCode[ACCESS_CODE_SIZE]; for(int i = 0; i < ACCESS_CODE_SIZE; i++) masterAccessCode[i] = i*15;
+
 #define STANDARD_ID_SIZE 4
 
 #ifdef USE_INDEXED_IDS

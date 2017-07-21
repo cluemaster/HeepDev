@@ -18,6 +18,16 @@ var heepPort = 5000;
 var searchComplete = false;
 var mostRecentSearch = {};
 
+var GetMasterAccessCode = () =>{
+  var accessCodeMaster = [];
+
+  for (var i = 0; i < 8; i++){ 
+    accessCodeMaster.push(i*15);
+  }
+
+  return accessCodeMaster
+}
+
 export var SearchForHeepDevices = () => {
   var gateway = findGateway();
   var searchBuffer = Buffer.from([0x09, 0x00])
@@ -55,8 +65,9 @@ export var SendPositionToHeepDevice = (deviceID, position) => {
   var yPosition = byteUtils.GetValueAsFixedSizeByteArray(position.top, 2);
   var packet = xPosition.concat(yPosition);
   var numBytes = [packet.length];
+  var accessCodeMaster = GetMasterAccessCode();
 
-  var messageBuffer = Buffer.from([0x0B].concat(numBytes, packet));
+  var messageBuffer = Buffer.from([0x0B].concat(accessCodeMaster,numBytes, packet));
   console.log('Connecting to Device ', deviceID + ' at IPAddress: ' + IPAddress);
   console.log('Data packet: ', messageBuffer);
   ConnectToHeepDevice(IPAddress, heepPort, messageBuffer)
@@ -69,7 +80,9 @@ export var SendValueToHeepDevice = (deviceID, controlID, newValue) => {
     var controlByteArray = byteUtils.GetByteArrayFromValue(controlID);
     var valueByteArray = byteUtils.GetByteArrayFromValue(newValue);
     var numBytes = [controlByteArray.length + valueByteArray.length];
-    var messageBuffer = Buffer.from([0x0A].concat(numBytes, controlByteArray, valueByteArray));
+    var accessCodeMaster = GetMasterAccessCode();
+
+    var messageBuffer = Buffer.from([0x0A].concat(accessCodeMaster, numBytes, controlByteArray, valueByteArray));
     console.log('Connecting to Device ', deviceID + ' at IPAddress: ' + IPAddress);
     console.log('Data Packet: ',  messageBuffer);
     ConnectToHeepDevice(IPAddress, heepPort, messageBuffer)
@@ -110,8 +123,9 @@ export var PrepVertexForCOP = (vertex, COP) => {
   var rxIP = byteUtils.ConvertIPAddressToByteArray(vertex.rxIP);
   var packet = txDeviceID.concat(rxDeviceID, txControlID, rxControlID, rxIP);
   var numBytes = [packet.length];
+  var accessCodeMaster = GetMasterAccessCode();
 
-  return Buffer.from([COP].concat(numBytes, packet));
+  return Buffer.from([COP].concat(accessCodeMaster, numBytes, packet));
 }
 
 var CheckIfNewValueAndSet = (deviceID, controlID, newValue) => {

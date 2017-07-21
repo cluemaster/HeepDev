@@ -1265,6 +1265,25 @@ void TestAccessCode()
 	CheckResults(TestName, valueList, 2);
 }
 
+void TestMasterAccessCode()
+{
+	std::string TestName = "Master Access Code creation";
+
+	GET_MASTER_ACCESS_CODE
+
+	ExpectedValue valueList [2];
+
+	valueList[0].valueName = "Master Access Code 1st Byte";
+	valueList[0].expectedValue = masterAccessCode[0];
+	valueList[0].actualValue = 0;
+
+	valueList[1].valueName = "Master Access Code 3rd Byte";
+	valueList[1].expectedValue = masterAccessCode[2];
+	valueList[1].actualValue = 30;
+
+	CheckResults(TestName, valueList, 2);
+}
+
 void TestDynamicMemory()
 {	
 	TestAddIPToDeviceMemory();
@@ -1299,4 +1318,5 @@ void TestDynamicMemory()
  	TestBufferEqualityAtPointer();
  	TestBufferInEqualityAtPointer();
  	TestAccessCode();
+ 	TestMasterAccessCode();
 }
