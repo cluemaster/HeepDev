@@ -404,6 +404,11 @@ void ExecuteAddMOPOpCode()
 
 }
 
+void ExecuteSetAdminIDOpCode()
+{
+
+}
+
 heepByte VerifyAccessCode()
 {
 
@@ -416,6 +421,20 @@ heepByte VerifyAccessCode()
 		accessCodePassed = CheckBufferEqualityFromStartPoint(inputBuffer, masterAccessCode, 1, 0, ACCESS_CODE_SIZE);
 	}
 #endif
+
+	if(!accessCodePassed)
+	{
+		ClearOutputBuffer();
+		char errorMessage [] = "Access Denied";
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+	}
+
+	return accessCodePassed;
+}
+
+heepByte VerifyAdminAccessCode()
+{
+	heepByte accessCodePassed = CheckBufferEqualityFromStartPoint(inputBuffer, adminAccessCode, 1, 0, ACCESS_CODE_SIZE);
 
 	if(!accessCodePassed)
 	{
@@ -464,6 +483,13 @@ void ExecuteControlOpCodes()
 		{
 			ExecuteDeleteMOPOpCode();
 		}
+	}
+	else if(VerifyAdminAccessCode())
+	{
+		if(ReceivedOpCode == SetAdminIDOpCode)
+		{
+			ExecuteSetAdminIDOpCode();
+		}	
 	}
 	else
 	{

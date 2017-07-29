@@ -31,8 +31,11 @@
 #define LocalDeviceIDOpCode 		0x16
 #define AdminOpCode					0x17
 #define AccessCodeOpCode			0x18
+#define SetAdminIDOpCode			0x1B
 
 heepByte accessCode [ACCESS_CODE_SIZE];
+heepByte adminAccessCode [ACCESS_CODE_SIZE];
+
 unsigned char deviceMemory [MAX_MEMORY];
 unsigned int curFilledMemory = 0; // Indicate the curent filled memory. 
 						 // Also serve as a place holder to 

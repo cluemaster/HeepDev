@@ -100,6 +100,9 @@ void TestHeepDeviceCOP()
 {
 	std::string TestName = "Is Heep Device COP";
 
+	adminAccessCode[0] = 1;
+	adminAccessCode[1] = 2;
+
 	ClearDeviceMemory();
 	SetDeviceName("Jacob");
 	ClearOutputBuffer();
