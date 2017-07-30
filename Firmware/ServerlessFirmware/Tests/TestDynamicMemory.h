@@ -1297,28 +1297,25 @@ void TestAdminIDSetAndUpdate()
 	}
 
 	CreateFakeDeviceID(deviceIDByte);
-	PrintDeviceMemory();
 	UpdateAdminIDInMemory(deviceIDByte, adminID);
-	PrintDeviceMemory();
+
+	ExpectedValue valueList [2];
+
+	valueList[0].valueName = "Admin ID 1st Byte for Replacement";
+	valueList[0].expectedValue = adminID[0];
+	valueList[0].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 1];
 
 	for(int i = 0; i < ADMIN_ID_SIZE; i++)
 	{
 		adminID[i] = i*7;
 	}
 	UpdateAdminIDInMemory(deviceIDByte, adminID);
-	PrintDeviceMemory();
 
-	// ExpectedValue valueList [2];
+	valueList[1].valueName = "Access Code 1st Byte after Replacement"; 
+	valueList[1].expectedValue = adminID[0];
+	valueList[1].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 1];
 
-	// valueList[0].valueName = "Access Code 1st Byte";
-	// valueList[0].expectedValue = accessCode[0];
-	// valueList[0].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 1];
-
-	// valueList[1].valueName = "Access Code 3rd Byte";
-	// valueList[1].expectedValue = accessCode[2];
-	// valueList[1].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 3];
-
-	// CheckResults(TestName, valueList, 2);
+	CheckResults(TestName, valueList, 2);
 }
 
 void TestDynamicMemory()
