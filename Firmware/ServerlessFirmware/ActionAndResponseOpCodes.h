@@ -406,7 +406,19 @@ void ExecuteAddMOPOpCode()
 
 void ExecuteSetAdminIDOpCode()
 {
+	unsigned int counter = 1 + ACCESS_CODE_SIZE;
+	unsigned char numBytes = inputBuffer[counter++];
 
+	heepByte adminID[ADMIN_ID_SIZE];
+	for(int i = 0; i < ADMIN_ID_SIZE; i++)
+	{
+		adminID[i] = inputBuffer[counter++];
+	}
+
+	UpdateAdminIDInMemory(deviceIDByte, adminID);
+
+	char SuccessMessage [] = "Admin ID Set";
+	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
 }
 
 heepByte VerifyAccessCode()

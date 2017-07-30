@@ -569,6 +569,66 @@ void TestAccessCodeVerificationFailure()
 	CheckResults(TestName, valueList, 1);
 }
 
+void TestSetAdminIDOpCode()
+{
+	std::string TestName = "Test Set Admin ID COP";
+
+	ClearControls();
+	SetDeviceName("Test");
+
+	GenerateAccessCode();
+
+	ClearInputBuffer();
+	inputBuffer[0] = SetAdminIDOpCode;
+	int newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = ADMIN_ID_SIZE;
+
+	// Add admin ID to input buffer
+	for(int i = 0; i < ADMIN_ID_SIZE; i++)
+	{
+		inputBuffer[newCount++] = i * 3;
+	}
+
+	PrintBuffer(deviceMemory, curFilledMemory);
+	ExecuteControlOpCodes();
+	PrintBuffer(deviceMemory, curFilledMemory);
+
+
+	// heepByte deviceID [STANDARD_ID_SIZE] = {0x06, 0x04, 0x06, 0x01};
+	// int x = 0; int y = 0; unsigned int xyMemPosition = 0; 
+	// GetXYFromMemory_Byte(&x, &y, deviceID, &xyMemPosition);
+
+	// ExpectedValue valueList[4];
+	// valueList[0].valueName = "x";
+	// valueList[0].expectedValue = 0x0101;
+	// valueList[0].actualValue = x;
+
+	// valueList[1].valueName = "y";
+	// valueList[1].expectedValue = 0x1010;
+	// valueList[1].actualValue = y;
+
+	// ClearInputBuffer();
+	// inputBuffer[0] = 0x0B;
+	// newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	// inputBuffer[newCount++] = 0x04;
+	// inputBuffer[newCount++] = 0xF1;
+	// inputBuffer[newCount++] = 0x02;
+	// inputBuffer[newCount++] = 0xB2;
+	// inputBuffer[newCount++] = 0x3C;
+	// ExecuteControlOpCodes();
+	// GetXYFromMemory_Byte(&x, &y, deviceID, &xyMemPosition);
+
+	// valueList[2].valueName = "x";
+	// valueList[2].expectedValue = 0xF102;
+	// valueList[2].actualValue = x;
+
+	// valueList[3].valueName = "y";
+	// valueList[3].expectedValue = 0xB23C;
+	// valueList[3].actualValue = y;
+
+	// CheckResults(TestName, valueList, 4);
+}
+
 void TestActionAndResponseOpCodes()
 {
 	TestClearOutputBufferAndAddChar();
@@ -583,4 +643,5 @@ void TestActionAndResponseOpCodes()
 	TestDeleteMOPOpCode();
 	TestMasterAccessCodeVerification();
 	TestAccessCodeVerificationFailure();
+	TestSetAdminIDOpCode();
 }
