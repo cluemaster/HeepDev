@@ -577,6 +577,7 @@ void TestSetAdminIDOpCode()
 	SetDeviceName("Test");
 
 	GenerateAccessCode();
+	AddAccessCodeToBuffer(adminAccessCode, 0);
 
 	ClearInputBuffer();
 	inputBuffer[0] = SetAdminIDOpCode;

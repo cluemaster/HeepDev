@@ -512,14 +512,15 @@ void ExecuteControlOpCodes()
 	// Get Op Code
 	unsigned char ReceivedOpCode = inputBuffer[0];
 
-	// Get Access Code
-	if(VerifyAccessCode())
-	{
-		ExecuteStandardOpCode(ReceivedOpCode);
-	}
-	else if(VerifyAdminAccessCode())
+	// Get Access Code 
+	if(VerifyAdminAccessCode())
 	{
 		ExecuteAdminOnlyOpCode(ReceivedOpCode);
+		ExecuteStandardOpCode(ReceivedOpCode);
+	}
+	else if(VerifyAccessCode())
+	{
+		ExecuteStandardOpCode(ReceivedOpCode);
 	}
 	else
 	{
