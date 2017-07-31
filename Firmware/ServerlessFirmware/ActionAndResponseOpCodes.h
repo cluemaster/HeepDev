@@ -458,6 +458,55 @@ heepByte VerifyAdminAccessCode()
 	return accessCodePassed;
 }
 
+void ExecuteStandardOpCode(unsigned char ReceivedOpCode)
+{
+	// Execute Op Code
+	if(ReceivedOpCode == IsHeepDeviceOpCode)
+	{
+		ExecuteMemoryDumpOpCode();
+	}
+	else if(ReceivedOpCode == SetValueOpCode)
+	{
+		ExecuteSetValOpCode();
+	}
+	else if(ReceivedOpCode == SetPositionOpCode)
+	{
+		ExecuteSetPositionOpCode();
+	}
+	else if(ReceivedOpCode == SetVertexOpCode)
+	{
+		ExecuteSetVertexOpCode();
+	}
+	else if(ReceivedOpCode == DeleteVertexOpCode)
+	{
+		ExecuteDeleteVertexOpCode();
+	}
+	else if(ReceivedOpCode == AddMOPOpCode)
+	{
+		ExecuteAddMOPOpCode();
+	}
+	else if(ReceivedOpCode == DeleteMOPOpCode)
+	{
+		ExecuteDeleteMOPOpCode();
+	}
+}
+
+void ExecuteAdminOnlyOpCode(unsigned char ReceivedOpCode)
+{
+	if(ReceivedOpCode == SetAdminIDOpCode)
+	{
+		ExecuteSetAdminIDOpCode();
+	}	
+}
+
+void ExecuteNoAccessCodeOpCode(unsigned char ReceivedOpCode)
+{
+	if(ReceivedOpCode == IsHeepDeviceOpCode)
+	{
+		ExecuteMemoryDumpOpCode();
+	}
+}
+
 void ExecuteControlOpCodes()
 {
 	// Get Op Code
@@ -466,49 +515,15 @@ void ExecuteControlOpCodes()
 	// Get Access Code
 	if(VerifyAccessCode())
 	{
-		// Execute Op Code
-		if(ReceivedOpCode == IsHeepDeviceOpCode)
-		{
-			ExecuteMemoryDumpOpCode();
-		}
-		else if(ReceivedOpCode == SetValueOpCode)
-		{
-			ExecuteSetValOpCode();
-		}
-		else if(ReceivedOpCode == SetPositionOpCode)
-		{
-			ExecuteSetPositionOpCode();
-		}
-		else if(ReceivedOpCode == SetVertexOpCode)
-		{
-			ExecuteSetVertexOpCode();
-		}
-		else if(ReceivedOpCode == DeleteVertexOpCode)
-		{
-			ExecuteDeleteVertexOpCode();
-		}
-		else if(ReceivedOpCode == AddMOPOpCode)
-		{
-			ExecuteAddMOPOpCode();
-		}
-		else if(ReceivedOpCode == DeleteMOPOpCode)
-		{
-			ExecuteDeleteMOPOpCode();
-		}
+		ExecuteStandardOpCode(ReceivedOpCode);
 	}
 	else if(VerifyAdminAccessCode())
 	{
-		if(ReceivedOpCode == SetAdminIDOpCode)
-		{
-			ExecuteSetAdminIDOpCode();
-		}	
+		ExecuteAdminOnlyOpCode(ReceivedOpCode);
 	}
 	else
 	{
-		if(ReceivedOpCode == IsHeepDeviceOpCode)
-		{
-			ExecuteMemoryDumpOpCode();
-		}
+		ExecuteNoAccessCodeOpCode(ReceivedOpCode);
 	}
 }
 
