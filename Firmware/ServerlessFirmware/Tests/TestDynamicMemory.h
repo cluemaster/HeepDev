@@ -1284,6 +1284,40 @@ void TestMasterAccessCode()
 	CheckResults(TestName, valueList, 2);
 }
 
+void TestAdminIDSetAndUpdate()
+{
+	std::string TestName = "Admin ID Set and Update";
+
+	ClearDeviceMemory();
+
+	heepByte adminID[ADMIN_ID_SIZE];
+	for(int i = 0; i < ADMIN_ID_SIZE; i++)
+	{
+		adminID[i] = i*3;
+	}
+
+	CreateFakeDeviceID(deviceIDByte);
+	UpdateAdminIDInMemory(deviceIDByte, adminID);
+
+	ExpectedValue valueList [2];
+
+	valueList[0].valueName = "Admin ID 1st Byte for Replacement";
+	valueList[0].expectedValue = adminID[0];
+	valueList[0].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 1];
+
+	for(int i = 0; i < ADMIN_ID_SIZE; i++)
+	{
+		adminID[i] = i*7;
+	}
+	UpdateAdminIDInMemory(deviceIDByte, adminID);
+
+	valueList[1].valueName = "Access Code 1st Byte after Replacement"; 
+	valueList[1].expectedValue = adminID[0];
+	valueList[1].actualValue = deviceMemory[GetMemCounterStart() + ID_SIZE + 1 + 1];
+
+	CheckResults(TestName, valueList, 2);
+}
+
 void TestDynamicMemory()
 {	
 	TestAddIPToDeviceMemory();
@@ -1319,4 +1353,5 @@ void TestDynamicMemory()
  	TestBufferInEqualityAtPointer();
  	TestAccessCode();
  	TestMasterAccessCode();
+ 	TestAdminIDSetAndUpdate();
 }

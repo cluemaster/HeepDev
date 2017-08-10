@@ -100,6 +100,9 @@ void TestHeepDeviceCOP()
 {
 	std::string TestName = "Is Heep Device COP";
 
+	adminAccessCode[0] = 1;
+	adminAccessCode[1] = 2;
+
 	ClearDeviceMemory();
 	SetDeviceName("Jacob");
 	ClearOutputBuffer();
@@ -566,6 +569,42 @@ void TestAccessCodeVerificationFailure()
 	CheckResults(TestName, valueList, 1);
 }
 
+void TestSetAdminIDOpCode()
+{
+	std::string TestName = "Test Set Admin ID COP";
+
+	ClearControls();
+	SetDeviceName("Test");
+
+	GenerateAccessCode();
+	AddAccessCodeToBuffer(adminAccessCode, 0);
+
+	ClearInputBuffer();
+	inputBuffer[0] = SetAdminIDOpCode;
+	int newCount = AddAccessCodeToBuffer(inputBuffer, 1);
+	inputBuffer[newCount++] = ADMIN_ID_SIZE;
+
+	// Add admin ID to input buffer
+	for(int i = 0; i < ADMIN_ID_SIZE; i++)
+	{
+		inputBuffer[newCount++] = i * 3;
+	}
+
+	ClearDeviceMemory();
+	ExecuteControlOpCodes();
+
+	ExpectedValue valueList[4];
+	valueList[0].valueName = "Success Op Code";
+	valueList[0].expectedValue = SuccessOpCode;
+	valueList[0].actualValue = outputBuffer[0];
+
+	valueList[1].valueName = "A for Admin";
+	valueList[1].expectedValue = 'A';
+	valueList[1].actualValue = outputBuffer[STANDARD_ID_SIZE+1+1];
+
+	CheckResults(TestName, valueList, 2);
+}
+
 void TestActionAndResponseOpCodes()
 {
 	TestClearOutputBufferAndAddChar();
@@ -580,4 +619,5 @@ void TestActionAndResponseOpCodes()
 	TestDeleteMOPOpCode();
 	TestMasterAccessCodeVerification();
 	TestAccessCodeVerificationFailure();
+	TestSetAdminIDOpCode();
 }

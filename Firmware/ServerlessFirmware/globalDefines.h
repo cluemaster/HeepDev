@@ -20,6 +20,7 @@
 
 //#define USE_INDEXED_IDS
 
+#define ADMIN_ID_SIZE 8
 #define ACCESS_CODE_SIZE 8
 
 #define USE_MASTER_ACCESS_CODE

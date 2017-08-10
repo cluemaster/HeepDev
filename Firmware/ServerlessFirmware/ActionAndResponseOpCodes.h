@@ -404,6 +404,23 @@ void ExecuteAddMOPOpCode()
 
 }
 
+void ExecuteSetAdminIDOpCode()
+{
+	unsigned int counter = 1 + ACCESS_CODE_SIZE;
+	unsigned char numBytes = inputBuffer[counter++];
+
+	heepByte adminID[ADMIN_ID_SIZE];
+	for(int i = 0; i < ADMIN_ID_SIZE; i++)
+	{
+		adminID[i] = inputBuffer[counter++];
+	}
+
+	UpdateAdminIDInMemory(deviceIDByte, adminID);
+
+	char SuccessMessage [] = "Admin ID Set";
+	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+}
+
 heepByte VerifyAccessCode()
 {
 
@@ -427,50 +444,87 @@ heepByte VerifyAccessCode()
 	return accessCodePassed;
 }
 
+heepByte VerifyAdminAccessCode()
+{
+	heepByte accessCodePassed = CheckBufferEqualityFromStartPoint(inputBuffer, adminAccessCode, 1, 0, ACCESS_CODE_SIZE);
+
+	if(!accessCodePassed)
+	{
+		ClearOutputBuffer();
+		char errorMessage [] = "Access Denied";
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+	}
+
+	return accessCodePassed;
+}
+
+void ExecuteStandardOpCode(unsigned char ReceivedOpCode)
+{
+	// Execute Op Code
+	if(ReceivedOpCode == IsHeepDeviceOpCode)
+	{
+		ExecuteMemoryDumpOpCode();
+	}
+	else if(ReceivedOpCode == SetValueOpCode)
+	{
+		ExecuteSetValOpCode();
+	}
+	else if(ReceivedOpCode == SetPositionOpCode)
+	{
+		ExecuteSetPositionOpCode();
+	}
+	else if(ReceivedOpCode == SetVertexOpCode)
+	{
+		ExecuteSetVertexOpCode();
+	}
+	else if(ReceivedOpCode == DeleteVertexOpCode)
+	{
+		ExecuteDeleteVertexOpCode();
+	}
+	else if(ReceivedOpCode == AddMOPOpCode)
+	{
+		ExecuteAddMOPOpCode();
+	}
+	else if(ReceivedOpCode == DeleteMOPOpCode)
+	{
+		ExecuteDeleteMOPOpCode();
+	}
+}
+
+void ExecuteAdminOnlyOpCode(unsigned char ReceivedOpCode)
+{
+	if(ReceivedOpCode == SetAdminIDOpCode)
+	{
+		ExecuteSetAdminIDOpCode();
+	}	
+}
+
+void ExecuteNoAccessCodeOpCode(unsigned char ReceivedOpCode)
+{
+	if(ReceivedOpCode == IsHeepDeviceOpCode)
+	{
+		ExecuteMemoryDumpOpCode();
+	}
+}
+
 void ExecuteControlOpCodes()
 {
 	// Get Op Code
 	unsigned char ReceivedOpCode = inputBuffer[0];
 
-	// Get Access Code
-	if(VerifyAccessCode())
+	// Get Access Code 
+	if(VerifyAdminAccessCode())
 	{
-		// Execute Op Code
-		if(ReceivedOpCode == IsHeepDeviceOpCode)
-		{
-			ExecuteMemoryDumpOpCode();
-		}
-		else if(ReceivedOpCode == SetValueOpCode)
-		{
-			ExecuteSetValOpCode();
-		}
-		else if(ReceivedOpCode == SetPositionOpCode)
-		{
-			ExecuteSetPositionOpCode();
-		}
-		else if(ReceivedOpCode == SetVertexOpCode)
-		{
-			ExecuteSetVertexOpCode();
-		}
-		else if(ReceivedOpCode == DeleteVertexOpCode)
-		{
-			ExecuteDeleteVertexOpCode();
-		}
-		else if(ReceivedOpCode == AddMOPOpCode)
-		{
-			ExecuteAddMOPOpCode();
-		}
-		else if(ReceivedOpCode == DeleteMOPOpCode)
-		{
-			ExecuteDeleteMOPOpCode();
-		}
+		ExecuteAdminOnlyOpCode(ReceivedOpCode);
+		ExecuteStandardOpCode(ReceivedOpCode);
+	}
+	else if(VerifyAccessCode())
+	{
+		ExecuteStandardOpCode(ReceivedOpCode);
 	}
 	else
 	{
-		if(ReceivedOpCode == IsHeepDeviceOpCode)
-		{
-			ExecuteMemoryDumpOpCode();
-		}
+		ExecuteNoAccessCodeOpCode(ReceivedOpCode);
 	}
 }
 

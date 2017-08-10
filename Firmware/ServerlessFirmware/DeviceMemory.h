@@ -31,8 +31,11 @@
 #define LocalDeviceIDOpCode 		0x16
 #define AdminOpCode					0x17
 #define AccessCodeOpCode			0x18
+#define SetAdminIDOpCode			0x1B
 
 heepByte accessCode [ACCESS_CODE_SIZE];
+heepByte adminAccessCode [ACCESS_CODE_SIZE];
+
 unsigned char deviceMemory [MAX_MEMORY];
 unsigned int curFilledMemory = 0; // Indicate the curent filled memory. 
 						 // Also serve as a place holder to 
@@ -176,6 +179,75 @@ void SetAccessCodeInMemory()
 	for(int i = 0; i < ACCESS_CODE_SIZE; i++)
 	{
 		AddNewCharToMemory(accessCode[i]);
+	}
+}
+
+unsigned int parseAdminID(heepByte* deviceID, heepByte* retAdminID, unsigned int counter)
+{
+	counter++;
+	counter = GetDeviceIDOrLocalIDFromBuffer(deviceMemory, deviceID, counter); 
+	GetNumberFromBuffer(deviceMemory, &counter, 1);
+	unsigned int adminIDCounter = 0;
+	AddBufferToBuffer(retAdminID, deviceMemory, ADMIN_ID_SIZE, &adminIDCounter, &counter);
+
+	return counter;
+}
+
+heepByte GetAdminIDFromMemory(heepByte* deviceID, unsigned int* adminMemPosition, heepByte* retAdminID)
+{
+	unsigned int counter = 0;
+
+	GetIndexedDeviceID_Byte(deviceID);
+
+	while(counter < curFilledMemory)
+	{
+		if(deviceMemory[counter] == AdminOpCode)
+		{
+			*adminMemPosition = counter;
+
+			heepByte tempID [ID_SIZE];
+			counter = parseAdminID(tempID, retAdminID, counter);
+
+			if(CheckBufferEquality(deviceID, tempID, ID_SIZE))
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			counter = SkipOpCode(counter);
+		}
+	}
+
+	return 1;
+}
+
+void UpdateAdminIDInMemory(heepByte* deviceID, heepByte* adminID)
+{
+	heepByte foundAdminID [ADMIN_ID_SIZE];
+	unsigned int adminMemPosition = 0;
+
+	heepByte success = GetAdminIDFromMemory(deviceID, &adminMemPosition, foundAdminID);
+
+	if(success == 1)
+	{
+		PerformPreOpCodeProcessing_Byte(deviceID);
+
+		AddNewCharToMemory(AdminOpCode);
+		AddIndexOrDeviceIDToMemory_Byte(deviceID);
+		AddNewCharToMemory((char)ADMIN_ID_SIZE);
+
+		for(int i = 0; i < ADMIN_ID_SIZE; i++)
+		{
+			AddNewCharToMemory(adminID[i]);
+		}
+	}
+	else
+	{
+		for(int i = 0; i < ADMIN_ID_SIZE; i++)
+		{
+			deviceMemory[adminMemPosition + ID_SIZE + 2 + i] = adminID[i];
+		}
 	}
 }
 
