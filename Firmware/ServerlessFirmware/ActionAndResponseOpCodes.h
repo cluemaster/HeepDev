@@ -3,6 +3,8 @@
 
 #include "Device.h"
 
+heepByte ackBuffer [RESEND_ACK_BYTES];
+
 unsigned char outputBuffer [OUTPUT_BUFFER_SIZE];
 unsigned int outputBufferLastByte = 0;
 
@@ -17,6 +19,57 @@ void ClearOutputBuffer()
 void ClearInputBuffer()
 {
 	inputBufferLastByte = 0;
+}
+
+void ClearAckBuffer()
+{
+	// 0 will indicate that nothing is there since no COPs are 0, and time will not be 0. If time is 0, then the 
+	// packet will receive an extra 10ms to live.
+	for(int i = 0; i < RESEND_ACK_BYTES; i++)
+	{
+		ackBuffer[i] = 0;
+	}
+}
+
+void ClearAckBufferFromIndexToEnd(int index)
+{
+	for(int i = index; i < RESEND_ACK_BYTES; i++)
+	{
+		ackBuffer[index] = 0;
+	}
+}
+
+void AddCurrentOutputBufferToAckBuffer()
+{
+
+}
+
+void HandleAckBufferTimeouts()
+{
+
+}
+
+int GetNextOpenAckPositionPointer()
+{
+	int counter = 0;
+
+	while(1)
+	{
+		if(ackBuffer[counter] == 0)
+		{
+			return counter; 
+		}
+		counter++;
+		if(counter > RESEND_ACK_BYTES) return counter;
+
+		counter += STANDARD_ID_SIZE + 1;
+		if(counter > RESEND_ACK_BYTES) return counter;
+
+		counter += ackBuffer[counter] + 1;
+		if(counter > RESEND_ACK_BYTES) return counter;
+	}
+
+	return counter;
 }
 
 void AddNewCharToOutputBuffer(unsigned char newMem)
