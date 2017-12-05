@@ -55,17 +55,19 @@ int GetNextOpenAckPositionPointer()
 
 	while(1)
 	{
-		if(ackBuffer[counter] == 0)
+		if(ackBuffer[counter] == 0) // Time
 		{
 			return counter; 
 		}
+
+		counter++; // OpCode
+		if(counter > RESEND_ACK_BYTES) return counter;
+
+		// NEED TO ADD WHEN WE HAVE ACCESS CODES
+		// counter += ACCESS_CODE_SIZE + 1;
+		// if(counter > RESEND_ACK_BYTES) return counter;
 		counter++;
-		if(counter > RESEND_ACK_BYTES) return counter;
-
-		counter += STANDARD_ID_SIZE + 1;
-		if(counter > RESEND_ACK_BYTES) return counter;
-
-		counter += ackBuffer[counter] + 1;
+		counter += ackBuffer[counter] + 1; // Get NumBytes
 		if(counter > RESEND_ACK_BYTES) return counter;
 	}
 
