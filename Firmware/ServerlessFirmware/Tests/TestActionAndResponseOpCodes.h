@@ -512,6 +512,54 @@ void TestByteDisplacement()
 	CheckResults(TestName, valueList, 2);
 }
 
+void TestDeleteAckAtIndex()
+{
+	std::string TestName = "Test Delete Ack at Index";
+
+	ClearAckBuffer();
+	ackBuffer[0] = 10;
+	ackBuffer[1] = 0x02;
+	ackBuffer[2] = 0x04;
+	ackBuffer[3] = 0x01;
+	ackBuffer[4] = 0x02;
+	ackBuffer[5] = 0x03;
+	ackBuffer[6] = 0x04;
+
+	ackBuffer[7] = 4;
+	ackBuffer[8] = 0x09;
+	ackBuffer[9] = 0x00;
+
+	ackBuffer[10] = 2;
+	ackBuffer[11] = 0x02;
+	ackBuffer[12] = 0x02;
+	ackBuffer[13] = 0x03;
+	ackBuffer[14] = 0x09;
+
+	DeleteAckDataAtIndex(7);
+	int valueAt7 = ackBuffer[7];
+
+	DeleteAckDataAtIndex(0);
+	int valueAt01 = ackBuffer[0];
+
+	DeleteAckDataAtIndex(0);
+	int valueAt02 = ackBuffer[0];
+
+	ExpectedValue valueList[3];
+	valueList[0].valueName = "Value After 1 Delete";
+	valueList[0].expectedValue = 2;
+	valueList[0].actualValue = valueAt7;
+
+	valueList[1].valueName = "Value After 2 Delete";
+	valueList[1].expectedValue = 2;
+	valueList[1].actualValue = valueAt01;
+
+	valueList[2].valueName = "Value After 3 Delete";
+	valueList[2].expectedValue = 0;
+	valueList[2].actualValue = valueAt02;
+
+	CheckResults(TestName, valueList, 3);
+}
+
 void TestActionAndResponseOpCodes()
 {
 	TestClearOutputBufferAndAddChar();
@@ -526,4 +574,5 @@ void TestActionAndResponseOpCodes()
 	TestDeleteMOPOpCode();
 	TestFindNextAckIndex();
 	TestByteDisplacement();
+	TestDeleteAckAtIndex();
 }

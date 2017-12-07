@@ -31,9 +31,27 @@ void ClearAckBuffer()
 	}
 }
 
-void DeleteAckDataAtIndex()
+void DeleteAckDataAtIndex(int index)
 {
-	
+	int localTracker = index;
+	ackBuffer[localTracker] = 0; // Set time to 0
+	localTracker++;
+	ackBuffer[localTracker] = 0; // Set OpCode to 0
+	localTracker++;
+	int numBytesToDelete = ackBuffer[localTracker];
+	ackBuffer[localTracker] = 0;
+	localTracker++;
+
+	for( ; localTracker < index + numBytesToDelete + 3; localTracker++)
+	{
+		ackBuffer[localTracker] = 0;
+	}
+
+	for(int i = index; i < RESEND_ACK_BYTES; i++)
+	{
+		ackBuffer[i] = ackBuffer[localTracker];
+		localTracker++;
+	}
 }
 
 int GetNextOpenAckPositionPointer()
