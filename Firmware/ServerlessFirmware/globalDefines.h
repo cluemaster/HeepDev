@@ -1,3 +1,5 @@
+#pragma once
+
 #define FIRMWARE_VERSION 1
 
 #define FACTORY_RESET_PIN 4
@@ -11,6 +13,8 @@
 
 #define SYSTEM_TASK_INTERVAL 1000 // Time in ms
 #define NUMBER_OF_TASKS 4
+
+#define ACK_TIMEOUT 10 // In 10ms increments
 
 //#define ON_ARDUINO
 //#define ON_PC
@@ -30,3 +34,19 @@
 #endif
 
 typedef unsigned char heepByte;
+
+#ifdef ON_PC
+#include "Simulation_Timer.h"
+#endif
+
+#ifdef ON_ARDUINO
+#include "Arduino_Timer.h"
+#endif
+
+#ifdef SIMULATION
+#include "Simulation_Timer.h"
+#endif
+
+#ifdef ON_PIC
+#include "PICW5500_Timer.h"
+#endif

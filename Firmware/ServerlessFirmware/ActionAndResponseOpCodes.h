@@ -31,24 +31,6 @@ void ClearAckBuffer()
 	}
 }
 
-void ClearAckBufferFromIndexToEnd(int index)
-{
-	for(int i = index; i < RESEND_ACK_BYTES; i++)
-	{
-		ackBuffer[index] = 0;
-	}
-}
-
-void AddCurrentOutputBufferToAckBuffer()
-{
-
-}
-
-void HandleAckBufferTimeouts()
-{
-
-}
-
 int GetNextOpenAckPositionPointer()
 {
 	int counter = 0;
@@ -72,6 +54,36 @@ int GetNextOpenAckPositionPointer()
 	}
 
 	return counter;
+}
+
+void ClearAckBufferFromIndexToEnd(int index)
+{
+	for(int i = index; i < RESEND_ACK_BYTES; i++)
+	{
+		ackBuffer[index] = 0;
+	}
+}
+
+void AddCurrentOutputBufferToAckBuffer()
+{
+	heepByte timeByte = GetMillis()/10;
+	int firstIndex = GetNextOpenAckPositionPointer();
+
+	if(firstIndex + outputBufferLastByte + 1 > RESEND_ACK_BYTES)
+	{
+		return; // FAILED FROM NOT ENOUGH MEMORY
+	}
+
+	ackBuffer[firstIndex] = timeByte;
+	for(int i = 0; i < outputBufferLastByte; i++)
+	{
+		ackBuffer[firstIndex + i + 1] = outputBuffer[i];
+	}
+}
+
+void HandleAckBufferTimeouts()
+{
+
 }
 
 void AddNewCharToOutputBuffer(unsigned char newMem)
