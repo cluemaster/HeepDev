@@ -31,6 +31,11 @@ void ClearAckBuffer()
 	}
 }
 
+void DeleteAckDataAtIndex()
+{
+	
+}
+
 int GetNextOpenAckPositionPointer()
 {
 	int counter = 0;
@@ -64,14 +69,19 @@ void ClearAckBufferFromIndexToEnd(int index)
 	}
 }
 
+heepByte GetAdjustedTimeoutTime()
+{
+	return (heepByte)(GetMillis()/10);
+}
+
 void AddCurrentOutputBufferToAckBuffer()
 {
-	heepByte timeByte = GetMillis()/10;
+	heepByte timeByte = GetAdjustedTimeoutTime();
 	int firstIndex = GetNextOpenAckPositionPointer();
 
 	if(firstIndex + outputBufferLastByte + 1 > RESEND_ACK_BYTES)
 	{
-		return; // FAILED FROM NOT ENOUGH MEMORY
+		return; // FAILED FROM NOT ENOUGH MEMORY. HANDLE IN SOME WAY
 	}
 
 	ackBuffer[firstIndex] = timeByte;
@@ -81,8 +91,61 @@ void AddCurrentOutputBufferToAckBuffer()
 	}
 }
 
+// Get the displacement between two byte values.
+// Assume that value Left was recorded earlier than value Right
+// Also assume that valueRight has not passed value left
+heepByte GetByteValueDisplacementMovingRight(heepByte ValueLeft, heepByte valueRight)
+{
+	int displacement = 0;
+	if(valueRight < ValueLeft)
+	{
+		displacement = (0xff+valueRight) - ValueLeft;
+	}
+	else 
+	{
+		displacement = valueRight - ValueLeft;
+	}
+
+	return (heepByte)displacement;
+}
+
+heepByte DidAckTimeout(heepByte ackStartTime)
+{
+	heepByte currentTime = GetAdjustedTimeoutTime();
+	heepByte ackEndTime = (ackStartTime + ACK_TIMEOUT)%0xff;
+	
+	if(GetByteValueDisplacementMovingRight(currentTime, ackEndTime) > ACK_TIMEOUT)
+		return 1;
+
+	return 0;
+}
+
 void HandleAckBufferTimeouts()
 {
+	int counter = 0;
+
+	while(1)
+	{
+		if(ackBuffer[counter] == 0) // Time
+		{
+			return; 
+		}
+
+		if(DidAckTimeout(ackBuffer[counter]))
+		{
+			// Respond to the timeout
+		}
+
+		counter++; // OpCode
+		if(counter > RESEND_ACK_BYTES) return;
+
+		// NEED TO ADD WHEN WE HAVE ACCESS CODES
+		// counter += ACCESS_CODE_SIZE + 1;
+		// if(counter > RESEND_ACK_BYTES) return counter;
+		counter++;
+		counter += ackBuffer[counter] + 1; // Get NumBytes
+		if(counter > RESEND_ACK_BYTES) return;
+	}
 
 }
 
