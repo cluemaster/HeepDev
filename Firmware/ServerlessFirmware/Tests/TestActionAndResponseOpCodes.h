@@ -488,6 +488,30 @@ void TestFindNextAckIndex()
 	CheckResults(TestName, valueList, 1);
 }
 
+void TestByteDisplacement()
+{
+	std::string TestName = "Test Byte Displacement";
+
+	heepByte valueLeft = 10;
+	heepByte valueRight = 30;
+	heepByte Displacement1 = GetByteValueDisplacementMovingRight(valueLeft, valueRight);
+
+	valueLeft = 130;
+	valueRight = 30;
+	heepByte Displacement2 = GetByteValueDisplacementMovingRight(valueLeft, valueRight);
+
+	ExpectedValue valueList[2];
+	valueList[0].valueName = "Displacement no Wrap";
+	valueList[0].expectedValue = 20;
+	valueList[0].actualValue = Displacement1;
+
+	valueList[1].valueName = "Displacement Wrap";
+	valueList[1].expectedValue = 155;
+	valueList[1].actualValue = Displacement2;
+
+	CheckResults(TestName, valueList, 2);
+}
+
 void TestActionAndResponseOpCodes()
 {
 	TestClearOutputBufferAndAddChar();
@@ -501,4 +525,5 @@ void TestActionAndResponseOpCodes()
 	TestAddMOPOpCode();
 	TestDeleteMOPOpCode();
 	TestFindNextAckIndex();
+	TestByteDisplacement();
 }
