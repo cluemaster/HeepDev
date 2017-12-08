@@ -21,6 +21,8 @@ void ClearInputBuffer()
 	inputBufferLastByte = 0;
 }
 
+
+// Ack consists of [TIME, RETRY_COUNT, OUTPUTBUFFER]
 void ClearAckBuffer()
 {
 	// 0 will indicate that nothing is there since no COPs are 0, and time will not be 0. If time is 0, then the 
