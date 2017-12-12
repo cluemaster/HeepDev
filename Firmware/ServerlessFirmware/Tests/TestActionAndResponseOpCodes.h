@@ -517,26 +517,29 @@ void TestDeleteAckAtIndex()
 	std::string TestName = "Test Delete Ack at Index";
 
 	ClearAckBuffer();
-	ackBuffer[0] = 10;
-	ackBuffer[1] = 0x02;
-	ackBuffer[2] = 0x04;
-	ackBuffer[3] = 0x01;
-	ackBuffer[4] = 0x02;
-	ackBuffer[5] = 0x03;
-	ackBuffer[6] = 0x04;
+	ackBuffer[0] = 10; // Timeout
+	ackBuffer[1] = 0; // Num Retries
+	ackBuffer[2] = 0x02;
+	ackBuffer[3] = 0x04;
+	ackBuffer[4] = 0x01;
+	ackBuffer[5] = 0x02;
+	ackBuffer[6] = 0x03;
+	ackBuffer[7] = 0x04;
 
-	ackBuffer[7] = 4;
-	ackBuffer[8] = 0x09;
-	ackBuffer[9] = 0x00;
+	ackBuffer[8] = 4; // Timeout
+	ackBuffer[9] = 1; // Num Retries
+	ackBuffer[10] = 0x09;
+	ackBuffer[11] = 0x00;
 
-	ackBuffer[10] = 2;
-	ackBuffer[11] = 0x02;
-	ackBuffer[12] = 0x02;
-	ackBuffer[13] = 0x03;
-	ackBuffer[14] = 0x09;
+	ackBuffer[12] = 2; // Timeout
+	ackBuffer[13] = 0; // Num Retries
+	ackBuffer[14] = 0x02;
+	ackBuffer[15] = 0x02;
+	ackBuffer[16] = 0x03;
+	ackBuffer[17] = 0x09;
 
-	DeleteAckDataAtIndex(7);
-	int valueAt7 = ackBuffer[7];
+	DeleteAckDataAtIndex(8);
+	int valueAt8 = ackBuffer[8];
 
 	DeleteAckDataAtIndex(0);
 	int valueAt01 = ackBuffer[0];
@@ -547,7 +550,7 @@ void TestDeleteAckAtIndex()
 	ExpectedValue valueList[3];
 	valueList[0].valueName = "Value After 1 Delete";
 	valueList[0].expectedValue = 2;
-	valueList[0].actualValue = valueAt7;
+	valueList[0].actualValue = valueAt8;
 
 	valueList[1].valueName = "Value After 2 Delete";
 	valueList[1].expectedValue = 2;

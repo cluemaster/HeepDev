@@ -38,13 +38,15 @@ void DeleteAckDataAtIndex(int index)
 	int localTracker = index;
 	ackBuffer[localTracker] = 0; // Set time to 0
 	localTracker++;
+	ackBuffer[localTracker] = 0; // Set retry count to 0
+	localTracker++;
 	ackBuffer[localTracker] = 0; // Set OpCode to 0
 	localTracker++;
 	int numBytesToDelete = ackBuffer[localTracker];
-	ackBuffer[localTracker] = 0;
+	ackBuffer[localTracker] = 0; // Set numBytes to 0
 	localTracker++;
 
-	for( ; localTracker < index + numBytesToDelete + 3; localTracker++)
+	for( ; localTracker < index + numBytesToDelete + 4; localTracker++)
 	{
 		ackBuffer[localTracker] = 0;
 	}
@@ -105,9 +107,10 @@ void AddCurrentOutputBufferToAckBuffer()
 	}
 
 	ackBuffer[firstIndex] = timeByte;
+	ackBuffer[firstIndex + 1] = 0; // Num retries starts at 0
 	for(int i = 0; i < outputBufferLastByte; i++)
 	{
-		ackBuffer[firstIndex + i + 1] = outputBuffer[i];
+		ackBuffer[firstIndex + i + 2] = outputBuffer[i];
 	}
 }
 
@@ -155,6 +158,9 @@ void HandleAckBufferTimeouts()
 		{
 			// Respond to the timeout
 		}
+
+		counter++; // Retry Count
+		if(counter > RESEND_ACK_BYTES) return;
 
 		counter++; // OpCode
 		if(counter > RESEND_ACK_BYTES) return;
