@@ -138,13 +138,22 @@ heepByte GetByteValueDisplacementMovingRight(heepByte ValueLeft, heepByte valueR
 	return (heepByte)displacement;
 }
 
-heepByte DidAckTimeout(heepByte ackStartTime)
+heepByte HandleAckTime(heepByte ackStartTime)
 {
 	heepByte currentTime = GetAdjustedTimeoutTime();
 	heepByte ackEndTime = (ackStartTime + ACK_TIMEOUT)%0xff;
+
+	heepByte valueDisplacement = GetByteValueDisplacementMovingRight(currentTime, ackEndTime);
 	
-	if(GetByteValueDisplacementMovingRight(currentTime, ackEndTime) > ACK_TIMEOUT)
-		return 1;
+	if(valueDisplacement > ACK_TIMEOUT) // Check Timeout
+	{
+		return 1; // Timed out
+	}
+	else if(valueDisplacement > (ACK_TIMEOUT/NUM_RETRIES)) // Check Retry
+	{
+		return 2; // Need to resend
+	}
+
 
 	return 0;
 }
@@ -155,14 +164,19 @@ void HandleAckBufferTimeouts()
 
 	while(1)
 	{
-		if(ackBuffer[counter] == 0) // Time
+		if(ackBuffer[counter] == 1) // Time
 		{
 			return; 
 		}
 
-		if(DidAckTimeout(ackBuffer[counter]))
+		heepByte ackResponse = HandleAckTime(ackBuffer[counter]);
+		if(ackResponse == 1)
 		{
 			// Respond to the timeout
+		}
+		else if(ackResponse == 2)
+		{
+			// Retry Send
 		}
 
 		counter++; // Retry Count
