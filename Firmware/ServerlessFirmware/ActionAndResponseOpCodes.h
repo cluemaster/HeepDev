@@ -45,7 +45,8 @@ int GetNextAckIndex(int index)
 
 heepByte GetNewCOPID()
 {
-
+	// ToDo: Check current COP IDs stored in ack memory, and make a new ID
+	return 0;
 }
 
 // Ack consists of [TIME, RETRY_COUNT, OUTPUTBUFFER]
@@ -155,7 +156,7 @@ heepByte GetByteValueDisplacementMovingRight(heepByte ValueLeft, heepByte valueR
 	return (heepByte)displacement;
 }
 
-heepByte HandleAckTime(heepByte ackStartTime)
+heepByte HandleAckTime(heepByte ackStartTime, heepByte retryCount)
 {
 	heepByte currentTime = GetAdjustedTimeoutTime();
 	heepByte ackEndTime = (ackStartTime + ACK_TIMEOUT)%0xff;
@@ -166,7 +167,7 @@ heepByte HandleAckTime(heepByte ackStartTime)
 	{
 		return 1; // Timed out
 	}
-	else if(valueDisplacement > (ACK_TIMEOUT/NUM_RETRIES)) // Check Retry
+	else if(valueDisplacement > (ACK_TIMEOUT/NUM_RETRIES) * (retryCount+1) ) // Check Retry
 	{
 		return 2; // Need to resend
 	}
@@ -181,33 +182,27 @@ void HandleAckBufferTimeouts()
 
 	while(1)
 	{
-		if(ackBuffer[counter] == 1) // Time
+		heepByte ackResponse = HandleAckTime(ackBuffer[counter], ackBuffer[counter + 1]);
+		if(ackResponse == 1) // Handle timeout
 		{
-			return; 
+			DeleteAckDataAtIndex(counter);
 		}
-
-		heepByte ackResponse = HandleAckTime(ackBuffer[counter]);
-		if(ackResponse == 1)
+		else if(ackResponse == 2) // Retry Send
 		{
-			// Respond to the timeout
+			//ToDo: Do retry send here
+			
+			ackBuffer[counter + 1]++; // Add 1 to retry counter
+
+			counter = GetNextAckIndex(counter);
+			if(counter == GetNextOpenAckPositionPointer())
+				return;
 		}
-		else if(ackResponse == 2)
+		else // Just Move On
 		{
-			// Retry Send
+			counter = GetNextAckIndex(counter);
+			if(counter == GetNextOpenAckPositionPointer())
+				return;
 		}
-
-		counter++; // Retry Count
-		if(counter > RESEND_ACK_BYTES) return;
-
-		counter++; // OpCode
-		if(counter > RESEND_ACK_BYTES) return;
-
-		// NEED TO ADD WHEN WE HAVE ACCESS CODES
-		// counter += ACCESS_CODE_SIZE + 1;
-		// if(counter > RESEND_ACK_BYTES) return counter;
-		counter++;
-		counter += ackBuffer[counter] + 1; // Get NumBytes
-		if(counter > RESEND_ACK_BYTES) return;
 	}
 
 }

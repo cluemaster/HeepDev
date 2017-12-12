@@ -566,6 +566,39 @@ void TestDeleteAckAtIndex()
 	CheckResults(TestName, valueList, 3);
 }
 
+void TestHandleAckBufferTimeouts()
+{
+	std::string TestName = "Test Delete Ack at Index";
+
+	ClearAckBuffer();
+	ackBuffer[0] = 10; // Timeout
+	ackBuffer[1] = 0; // Num Retries
+	ackBuffer[2] = 0x02;
+	ackBuffer[3] = 0x04;
+	ackBuffer[4] = 0x01;
+	ackBuffer[5] = 0x02;
+	ackBuffer[6] = 0x03;
+	ackBuffer[7] = 0x04;
+
+	ackBuffer[8] = 253; // Timeout
+	ackBuffer[9] = 1; // Num Retries
+	ackBuffer[10] = 0x09;
+	ackBuffer[11] = 0x00;
+
+	ackBuffer[12] = 246; // Timeout
+	ackBuffer[13] = 0; // Num Retries
+	ackBuffer[14] = 0x02;
+	ackBuffer[15] = 0x02;
+	ackBuffer[16] = 0x03;
+	ackBuffer[17] = 0x09;
+
+	PrintBuffer(ackBuffer, 18);
+
+	HandleAckBufferTimeouts();
+
+	PrintBuffer(ackBuffer, 18);
+}
+
 void TestActionAndResponseOpCodes()
 {
 	TestClearOutputBufferAndAddChar();
@@ -581,4 +614,5 @@ void TestActionAndResponseOpCodes()
 	TestFindNextAckIndex();
 	TestByteDisplacement();
 	TestDeleteAckAtIndex();
+	TestHandleAckBufferTimeouts();
 }
