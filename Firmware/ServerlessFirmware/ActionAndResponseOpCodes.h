@@ -93,7 +93,13 @@ void ClearAckBufferFromIndexToEnd(int index)
 
 heepByte GetAdjustedTimeoutTime()
 {
-	return (heepByte)(GetMillis()/10);
+	heepByte time = GetMillis()/10;
+
+	// Time cannot be 0 because we delimit with that number
+	if(time == 0)
+		time = 1;
+
+	return time;
 }
 
 void AddCurrentOutputBufferToAckBuffer()
