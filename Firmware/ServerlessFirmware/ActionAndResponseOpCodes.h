@@ -21,6 +21,32 @@ void ClearInputBuffer()
 	inputBufferLastByte = 0;
 }
 
+int GetNextAckIndex(int index)
+{
+	if(ackBuffer[index] == 0) // Time
+	{
+		return index; 
+	}
+
+	index++; // Retry Counter
+	if(index > RESEND_ACK_BYTES) return index;
+
+	index++; // OpCode
+	if(index > RESEND_ACK_BYTES) return index;
+
+	// NEED TO ADD WHEN WE HAVE ACCESS CODES
+	// index += ACCESS_CODE_SIZE + 1;
+	// if(index > RESEND_ACK_BYTES) return index;
+	index++;
+	index += ackBuffer[index] + 1; // Get NumBytes
+
+	return index;
+}
+
+heepByte GetNewCOPID()
+{
+
+}
 
 // Ack consists of [TIME, RETRY_COUNT, OUTPUTBUFFER]
 void ClearAckBuffer()
@@ -64,20 +90,11 @@ int GetNextOpenAckPositionPointer()
 
 	while(1)
 	{
-		if(ackBuffer[counter] == 0) // Time
-		{
-			return counter; 
-		}
+		int lastCounter = counter;
+		counter = GetNextAckIndex(counter);
 
-		counter++; // OpCode
-		if(counter > RESEND_ACK_BYTES) return counter;
-
-		// NEED TO ADD WHEN WE HAVE ACCESS CODES
-		// counter += ACCESS_CODE_SIZE + 1;
-		// if(counter > RESEND_ACK_BYTES) return counter;
-		counter++;
-		counter += ackBuffer[counter] + 1; // Get NumBytes
-		if(counter > RESEND_ACK_BYTES) return counter;
+		if(counter == lastCounter)
+			return counter;
 	}
 
 	return counter;

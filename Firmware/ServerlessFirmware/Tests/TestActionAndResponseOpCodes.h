@@ -460,29 +460,32 @@ void TestFindNextAckIndex()
 	std::string TestName = "Test Find Next Ack Index";
 
 	ClearAckBuffer();
-	ackBuffer[0] = 10;
-	ackBuffer[1] = 0x02;
-	ackBuffer[2] = 0x04;
-	ackBuffer[3] = 0x01;
-	ackBuffer[4] = 0x02;
-	ackBuffer[5] = 0x03;
-	ackBuffer[6] = 0x04;
+	ackBuffer[0] = 10; // Timeout
+	ackBuffer[1] = 0; // Num Retries
+	ackBuffer[2] = 0x02;
+	ackBuffer[3] = 0x04;
+	ackBuffer[4] = 0x01;
+	ackBuffer[5] = 0x02;
+	ackBuffer[6] = 0x03;
+	ackBuffer[7] = 0x04;
 
-	ackBuffer[7] = 2;
-	ackBuffer[8] = 0x09;
-	ackBuffer[9] = 0x00;
+	ackBuffer[8] = 4; // Timeout
+	ackBuffer[9] = 1; // Num Retries
+	ackBuffer[10] = 0x09;
+	ackBuffer[11] = 0x00;
 
-	ackBuffer[10] = 2;
-	ackBuffer[11] = 0x02;
-	ackBuffer[12] = 0x02;
-	ackBuffer[13] = 0x03;
-	ackBuffer[14] = 0x09;
+	ackBuffer[12] = 2; // Timeout
+	ackBuffer[13] = 0; // Num Retries
+	ackBuffer[14] = 0x02;
+	ackBuffer[15] = 0x02;
+	ackBuffer[16] = 0x03;
+	ackBuffer[17] = 0x09;
 
 	int nextindex = GetNextOpenAckPositionPointer();
 
 	ExpectedValue valueList[1];
 	valueList[0].valueName = "Index";
-	valueList[0].expectedValue = 15;
+	valueList[0].expectedValue = 18;
 	valueList[0].actualValue = nextindex;
 
 	CheckResults(TestName, valueList, 1);
