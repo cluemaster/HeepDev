@@ -568,7 +568,7 @@ void TestDeleteAckAtIndex()
 
 void TestHandleAckBufferTimeouts()
 {
-	std::string TestName = "Test Delete Ack at Index";
+	std::string TestName = "Test Ack Timeout";
 
 	ClearAckBuffer();
 	ackBuffer[0] = 10; // Timeout
@@ -592,11 +592,22 @@ void TestHandleAckBufferTimeouts()
 	ackBuffer[16] = 0x03;
 	ackBuffer[17] = 0x09;
 
-	PrintBuffer(ackBuffer, 18);
-
 	HandleAckBufferTimeouts();
 
-	PrintBuffer(ackBuffer, 18);
+	ExpectedValue valueList[3];
+	valueList[0].valueName = "Value at 0 after Delete";
+	valueList[0].expectedValue = 253;
+	valueList[0].actualValue = ackBuffer[0];
+
+	valueList[1].valueName = "Proof of Retry";
+	valueList[1].expectedValue = 2;
+	valueList[1].actualValue = ackBuffer[1];
+
+	valueList[2].valueName = "Data moved on successfully";
+	valueList[2].expectedValue = 246;
+	valueList[2].actualValue = ackBuffer[4];
+
+	CheckResults(TestName, valueList, 3);
 }
 
 void TestActionAndResponseOpCodes()
