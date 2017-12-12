@@ -21,6 +21,12 @@ void ClearInputBuffer()
 	inputBufferLastByte = 0;
 }
 
+heepByte GetPacketIDFromInputBuffer()
+{
+	// We know that the packet ID is always at position 1 for now....
+	return inputBuffer[1];
+}
+
 int GetNextAckIndex(int index)
 {
 	if(ackBuffer[index] == 0) // Time
@@ -190,7 +196,7 @@ void HandleAckBufferTimeouts()
 		else if(ackResponse == 2) // Retry Send
 		{
 			//ToDo: Do retry send here
-			
+
 			ackBuffer[counter + 1]++; // Add 1 to retry counter
 
 			counter = GetNextAckIndex(counter);
@@ -253,6 +259,7 @@ void FillOutputBufferWithSetValCOP(unsigned char controlID, unsigned char value)
 {
 	ClearOutputBuffer();
 	AddNewCharToOutputBuffer(SetValueOpCode);
+	AddNewCharToOutputBuffer(GetNewCOPID());
 	AddNewCharToOutputBuffer(2);
 	AddNewCharToOutputBuffer(controlID);
 	AddNewCharToOutputBuffer(value);
@@ -291,12 +298,13 @@ void FillOutputBufferWithDynamicMemorySize()
 }
 
 // Updated
-void FillOutputBufferWithMemoryDump()
+void FillOutputBufferWithMemoryDump(heepByte packetID)
 {
 	ClearOutputBuffer();
 	
 	AddNewCharToOutputBuffer(MemoryDumpOpCode);
 	AddDeviceIDToOutputBuffer_Byte(deviceIDByte);
+	AddNewCharToOutputBuffer(packetID);
 
 	unsigned long totalMemory = curFilledMemory + CalculateCoreMemorySize() + 1;
 
@@ -325,12 +333,13 @@ void FillOutputBufferWithMemoryDump()
 }
 
 // Updated
-void FillOutputBufferWithSuccess(char* message, int stringLength)
+void FillOutputBufferWithSuccess(char* message, int stringLength, heepByte packetID)
 {
 	ClearOutputBuffer();
 
 	AddNewCharToOutputBuffer(SuccessOpCode);
 	AddDeviceIDToOutputBuffer_Byte(deviceIDByte);
+	AddNewCharToOutputBuffer(packetID);
 
 	unsigned long totalMemory = strlen(message);
 
@@ -343,12 +352,13 @@ void FillOutputBufferWithSuccess(char* message, int stringLength)
 }
 
 // Updated
-void FillOutputBufferWithError(char* message, int stringLength)
+void FillOutputBufferWithError(char* message, int stringLength, heepByte packetID)
 {
 	ClearOutputBuffer();
 
 	AddNewCharToOutputBuffer(ErrorOpCode);
 	AddDeviceIDToOutputBuffer_Byte(deviceIDByte);
+	AddNewCharToOutputBuffer(packetID);
 
 	unsigned long totalMemory = strlen(message);
 
