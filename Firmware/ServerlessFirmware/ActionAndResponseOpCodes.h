@@ -366,12 +366,12 @@ void FillOutputBufferWithError(char* message, int stringLength, heepByte packetI
 
 void ExecuteMemoryDumpOpCode()
 {
-	FillOutputBufferWithMemoryDump();
+	FillOutputBufferWithMemoryDump(GetPacketIDFromInputBuffer());
 }
 
 void ExecuteSetValOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 	unsigned char numBytes = inputBuffer[counter++];
 	unsigned char controlID = inputBuffer[counter++];
 	unsigned int value = GetNumberFromBuffer(inputBuffer, &counter, numBytes - 1);
@@ -381,19 +381,19 @@ void ExecuteSetValOpCode()
 	if(success == 0)
 	{
 		char SuccessMessage [] = "Value Set";
-		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 	}
 	else 
 	{
 		char ErrorMessage [] = "Failed to Set";
-		FillOutputBufferWithError(ErrorMessage, strlen(ErrorMessage));
+		FillOutputBufferWithError(ErrorMessage, strlen(ErrorMessage), GetPacketIDFromInputBuffer());
 	}
 }
 
 // Updatded
 void ExecuteSetPositionOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 	unsigned char numBytes = inputBuffer[counter++];
 	unsigned int xValue = GetNumberFromBuffer(inputBuffer, &counter, 2);
 	unsigned int yValue = GetNumberFromBuffer(inputBuffer, &counter, 2);
@@ -401,7 +401,7 @@ void ExecuteSetPositionOpCode()
 	UpdateXYInMemory_Byte(xValue, yValue, deviceIDByte);
 
 	char SuccessMessage [] = "Value Set";
-	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 }
 
 // Updated
@@ -410,7 +410,7 @@ void ExecuteSetVertexOpCode()
 	struct Vertex_Byte myVertex;
 
 	unsigned int localCounter = 0;
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 	unsigned char numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	AddBufferToBuffer(myVertex.txID, inputBuffer, STANDARD_ID_SIZE, &localCounter, &counter);
 	localCounter = 0;
@@ -431,7 +431,7 @@ void ExecuteSetVertexOpCode()
 
 	ClearOutputBuffer();
 	char SuccessMessage [] = "Vertex Set";
-	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 }
 
 // Updated
@@ -440,7 +440,7 @@ void ExecuteDeleteVertexOpCode()
 	struct Vertex_Byte myVertex;
 
 	unsigned int localCounter = 0;
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 	unsigned char numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	AddBufferToBuffer(myVertex.txID, inputBuffer, STANDARD_ID_SIZE, &localCounter, &counter);
 	localCounter = 0;
@@ -461,13 +461,13 @@ void ExecuteDeleteVertexOpCode()
 	{
 		ClearOutputBuffer();
 		char errorMessage [] = "Failed to delete Vertex!";
-		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage), GetPacketIDFromInputBuffer());
 	}
 	else
 	{
 		ClearOutputBuffer();
 		char SuccessMessage [] = "Vertex Deleted!";
-		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 	}
 }
 
@@ -505,7 +505,7 @@ int ValidateAndRestructureIncomingMOP(unsigned int MOPStartAddr, unsigned int* n
 
 void ExecuteDeleteMOPOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 
 	unsigned int numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	int dataError = ValidateAndRestructureIncomingMOP(counter, &numBytes);
@@ -543,26 +543,26 @@ void ExecuteDeleteMOPOpCode()
 		{
 			ClearOutputBuffer();
 			char SuccessMessage [] = "MOP Deleted!";
-			FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+			FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 		}
 		else
 		{
 			ClearOutputBuffer();
 			char MyerrorMessage [] = "Cannot Delete: MOP not found";
-			FillOutputBufferWithError(MyerrorMessage, strlen(MyerrorMessage));
+			FillOutputBufferWithError(MyerrorMessage, strlen(MyerrorMessage), GetPacketIDFromInputBuffer());
 		}
 	}
 	else
 	{
 		ClearOutputBuffer();
 		char errorMessage [] = "Cannot Delete: Generic MOP was invalid!";
-		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage), GetPacketIDFromInputBuffer());
 	}
 }
 
 void ExecuteAddMOPOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 
 	unsigned int numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 
@@ -578,13 +578,13 @@ void ExecuteAddMOPOpCode()
 
 		ClearOutputBuffer();
 		char SuccessMessage [] = "MOP Added!";
-		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 	}
 	else
 	{
 		ClearOutputBuffer();
 		char errorMessage [] = "Cannot Add: Delivered Generic MOP was determined to be invalid!";
-		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage), GetPacketIDFromInputBuffer());
 	}
 
 }
@@ -635,7 +635,7 @@ void ExecuteControlOpCodes()
 	else
 	{
 		char errorMessage [] = "Invalid COP Received";
-		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage), GetPacketIDFromInputBuffer());
 	}
 }
 

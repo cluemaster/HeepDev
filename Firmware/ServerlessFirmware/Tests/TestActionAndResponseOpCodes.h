@@ -49,10 +49,12 @@ void TestMemoryDumpROP()
 		deviceIDByte[i] = i+1;
 	}
 
+	heepByte fakePacketID = 20;
+
 	ClearDeviceMemory();
 	SetDeviceName("Jacob");
 	ClearOutputBuffer();
-	FillOutputBufferWithMemoryDump();
+	FillOutputBufferWithMemoryDump(fakePacketID);
 
 	PrintOutputBuffer();
 
