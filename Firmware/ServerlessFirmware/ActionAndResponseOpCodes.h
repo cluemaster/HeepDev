@@ -5,12 +5,6 @@
 
 heepByte ackBuffer [RESEND_ACK_BYTES];
 
-unsigned char outputBuffer [OUTPUT_BUFFER_SIZE];
-unsigned int outputBufferLastByte = 0;
-
-unsigned char inputBuffer [INPUT_BUFFER_SIZE];
-unsigned int inputBufferLastByte = 0;
-
 void ClearOutputBuffer()
 {
 	outputBufferLastByte = 0;

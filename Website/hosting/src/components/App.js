@@ -14,6 +14,9 @@ import Auth from './Auth'
 import Logout from './Logout'
 import Loading from './Loading'
 import UserProfile from './UserProfile'
+import DeviceBuilder from './DeviceBuilder'
+
+import PaperSignalsConsole from './PaperSignals/PaperSignalsConsole'
 
 const mapStateToProps = (state) => ({
 	loginStatus: state.loginStatus,
@@ -62,6 +65,7 @@ class App extends React.Component {
 
 	    if (this.props.loginStatus) {
 	    	loggedInRoutes.push(<Route path="/Build" component={Build} key="build"/>);
+	    	loggedInRoutes.push(<Route path="/DeviceBuilder" component={DeviceBuilder} key="DeviceBuilder"/>)
 	    	loggedInRoutes.push(<Route path="/User" component={UserProfile} key="user"/>);
 	    }
 
@@ -73,6 +77,7 @@ class App extends React.Component {
 					<Route path="/Mission" component={Mission}/>
 					<Route path="/Shop" component={Store}/>
 					<Route exact path="/auth" component={Auth}/>
+					<Route exact path="/PaperSignals" component={PaperSignalsConsole}/>
 					{loggedInRoutes}
 			    </div>
 			</Router>);
