@@ -34,6 +34,9 @@ int GetNextAckIndex(int index)
 	index++; // OpCode
 	if(index > RESEND_ACK_BYTES) return index;
 
+	index++; // Packet ID
+	if(index > RESEND_ACK_BYTES) return index;
+
 	// NEED TO ADD WHEN WE HAVE ACCESS CODES
 	// index += ACCESS_CODE_SIZE + 1;
 	// if(index > RESEND_ACK_BYTES) return index;
@@ -69,11 +72,13 @@ void DeleteAckDataAtIndex(int index)
 	localTracker++;
 	ackBuffer[localTracker] = 0; // Set OpCode to 0
 	localTracker++;
+	ackBuffer[localTracker] = 0; // Set packet ID to 0
+	localTracker++;
 	int numBytesToDelete = ackBuffer[localTracker];
 	ackBuffer[localTracker] = 0; // Set numBytes to 0
 	localTracker++;
 
-	for( ; localTracker < index + numBytesToDelete + 4; localTracker++)
+	for( ; localTracker < index + numBytesToDelete + ACK_TIMEOUT_SIZE + ACK_RETRY_SIZE + OPCODE_SIZE + PACKETID_SIZE + NUM_BYTES_SIZE; localTracker++)
 	{
 		ackBuffer[localTracker] = 0;
 	}

@@ -470,30 +470,33 @@ void TestFindNextAckIndex()
 	ClearAckBuffer();
 	ackBuffer[0] = 10; // Timeout
 	ackBuffer[1] = 0; // Num Retries
-	ackBuffer[2] = 0x02;
-	ackBuffer[3] = 0x04;
-	ackBuffer[4] = 0x01;
-	ackBuffer[5] = 0x02;
-	ackBuffer[6] = 0x03;
-	ackBuffer[7] = 0x04;
+	ackBuffer[2] = 0x02; // OpCode
+	ackBuffer[3] = 0x12; // Packet ID
+	ackBuffer[4] = 0x04; // Num Bytes
+	ackBuffer[5] = 0x01; // Payload
+	ackBuffer[6] = 0x02;
+	ackBuffer[7] = 0x03;
+	ackBuffer[8] = 0x04;
 
-	ackBuffer[8] = 4; // Timeout
-	ackBuffer[9] = 1; // Num Retries
-	ackBuffer[10] = 0x09;
-	ackBuffer[11] = 0x00;
+	ackBuffer[9] = 4; // Timeout
+	ackBuffer[10] = 1; // Num Retries
+	ackBuffer[11] = 0x09; // OpCode
+	ackBuffer[12] = 0x11; // Packet ID
+	ackBuffer[13] = 0x00; // Num Bytes
 
-	ackBuffer[12] = 2; // Timeout
-	ackBuffer[13] = 0; // Num Retries
-	ackBuffer[14] = 0x02;
-	ackBuffer[15] = 0x02;
-	ackBuffer[16] = 0x03;
-	ackBuffer[17] = 0x09;
+	ackBuffer[14] = 2; // Timeout
+	ackBuffer[15] = 0; // Num Retries
+	ackBuffer[16] = 0x02; // OpCode
+	ackBuffer[17] = 0x1d; // Packet ID
+	ackBuffer[18] = 0x02; // Num Bytes
+	ackBuffer[19] = 0x03; // Payload
+	ackBuffer[20] = 0x09;
 
 	int nextindex = GetNextOpenAckPositionPointer();
 
 	ExpectedValue valueList[1];
 	valueList[0].valueName = "Index";
-	valueList[0].expectedValue = 18;
+	valueList[0].expectedValue = 21;
 	valueList[0].actualValue = nextindex;
 
 	CheckResults(TestName, valueList, 1);
@@ -530,27 +533,30 @@ void TestDeleteAckAtIndex()
 	ClearAckBuffer();
 	ackBuffer[0] = 10; // Timeout
 	ackBuffer[1] = 0; // Num Retries
-	ackBuffer[2] = 0x02;
-	ackBuffer[3] = 0x04;
-	ackBuffer[4] = 0x01;
-	ackBuffer[5] = 0x02;
-	ackBuffer[6] = 0x03;
-	ackBuffer[7] = 0x04;
+	ackBuffer[2] = 0x02; // OpCode
+	ackBuffer[3] = 0x12; // Packet ID
+	ackBuffer[4] = 0x04; // Num Bytes
+	ackBuffer[5] = 0x01; // Payload
+	ackBuffer[6] = 0x02;
+	ackBuffer[7] = 0x03;
+	ackBuffer[8] = 0x04;
 
-	ackBuffer[8] = 4; // Timeout
-	ackBuffer[9] = 1; // Num Retries
-	ackBuffer[10] = 0x09;
-	ackBuffer[11] = 0x00;
+	ackBuffer[9] = 4; // Timeout
+	ackBuffer[10] = 1; // Num Retries
+	ackBuffer[11] = 0x09; // OpCode
+	ackBuffer[12] = 0x11; // Packet ID
+	ackBuffer[13] = 0x00; // Num Bytes
 
-	ackBuffer[12] = 2; // Timeout
-	ackBuffer[13] = 0; // Num Retries
-	ackBuffer[14] = 0x02;
-	ackBuffer[15] = 0x02;
-	ackBuffer[16] = 0x03;
-	ackBuffer[17] = 0x09;
+	ackBuffer[14] = 2; // Timeout
+	ackBuffer[15] = 0; // Num Retries
+	ackBuffer[16] = 0x02; // OpCode
+	ackBuffer[17] = 0x1d; // Packet ID
+	ackBuffer[18] = 0x02; // Num Bytes
+	ackBuffer[19] = 0x03; // Payload
+	ackBuffer[20] = 0x09;
 
-	DeleteAckDataAtIndex(8);
-	int valueAt8 = ackBuffer[8];
+	DeleteAckDataAtIndex(9);
+	int valueAt9 = ackBuffer[9];
 
 	DeleteAckDataAtIndex(0);
 	int valueAt01 = ackBuffer[0];
@@ -561,7 +567,7 @@ void TestDeleteAckAtIndex()
 	ExpectedValue valueList[3];
 	valueList[0].valueName = "Value After 1 Delete";
 	valueList[0].expectedValue = 2;
-	valueList[0].actualValue = valueAt8;
+	valueList[0].actualValue = valueAt9;
 
 	valueList[1].valueName = "Value After 2 Delete";
 	valueList[1].expectedValue = 2;
@@ -581,24 +587,27 @@ void TestHandleAckBufferTimeouts()
 	ClearAckBuffer();
 	ackBuffer[0] = 10; // Timeout
 	ackBuffer[1] = 0; // Num Retries
-	ackBuffer[2] = 0x02;
-	ackBuffer[3] = 0x04;
-	ackBuffer[4] = 0x01;
-	ackBuffer[5] = 0x02;
-	ackBuffer[6] = 0x03;
-	ackBuffer[7] = 0x04;
+	ackBuffer[2] = 0x02; // OpCode
+	ackBuffer[3] = 0x12; // Packet ID
+	ackBuffer[4] = 0x04; // Num Bytes
+	ackBuffer[5] = 0x01; // Payload
+	ackBuffer[6] = 0x02;
+	ackBuffer[7] = 0x03;
+	ackBuffer[8] = 0x04;
 
-	ackBuffer[8] = 253; // Timeout
-	ackBuffer[9] = 1; // Num Retries
-	ackBuffer[10] = 0x09;
-	ackBuffer[11] = 0x00;
+	ackBuffer[9] = 253; // Timeout
+	ackBuffer[10] = 1; // Num Retries
+	ackBuffer[11] = 0x09; // OpCode
+	ackBuffer[12] = 0x11; // Packet ID
+	ackBuffer[13] = 0x00; // Num Bytes
 
-	ackBuffer[12] = 246; // Timeout
-	ackBuffer[13] = 0; // Num Retries
-	ackBuffer[14] = 0x02;
-	ackBuffer[15] = 0x02;
-	ackBuffer[16] = 0x03;
-	ackBuffer[17] = 0x09;
+	ackBuffer[14] = 246; // Timeout
+	ackBuffer[15] = 0; // Num Retries
+	ackBuffer[16] = 0x02; // OpCode
+	ackBuffer[17] = 0x1d; // Packet ID
+	ackBuffer[18] = 0x02; // Num Bytes
+	ackBuffer[19] = 0x03; // Payload
+	ackBuffer[20] = 0x09;
 
 	HandleAckBufferTimeouts();
 
@@ -613,7 +622,7 @@ void TestHandleAckBufferTimeouts()
 
 	valueList[2].valueName = "Data moved on successfully";
 	valueList[2].expectedValue = 246;
-	valueList[2].actualValue = ackBuffer[4];
+	valueList[2].actualValue = ackBuffer[5];
 
 	CheckResults(TestName, valueList, 3);
 }

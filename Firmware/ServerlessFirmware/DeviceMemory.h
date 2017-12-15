@@ -6,6 +6,7 @@
 #define PACKETID_SIZE 1
 #define ACK_TIMEOUT_SIZE 1
 #define ACK_RETRY_SIZE 1
+#define NUM_BYTES_SIZE 1
 
 // OPCodes
 #define ClientDataOpCode 		 	0x01
