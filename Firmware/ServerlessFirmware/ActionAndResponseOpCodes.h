@@ -213,7 +213,7 @@ void CheckReceivedROP()
 	do
 	{
 		heepByte ROPPacketID = GetPacketIDFromInputBuffer();
-		heepByte AckPacketID = ackBuffer[currentAckIndex + 3]; // +0 = Timeout, +1 = Retries, +2 = OpCode, +3 = PacketID
+		heepByte AckPacketID = ackBuffer[currentAckIndex + ACK_RETRY_SIZE + OPCODE_SIZE + PACKETID_SIZE]; // +0 = Timeout, +1 = Retries, +2 = OpCode, +3 = PacketID
 
 		if(ROPPacketID == AckPacketID)
 		{
