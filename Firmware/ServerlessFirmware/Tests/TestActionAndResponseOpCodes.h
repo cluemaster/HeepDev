@@ -155,10 +155,11 @@ void TestSetValSuccess()
 	AddControl(theControl);
 
 	ClearInputBuffer();
-	inputBuffer[0] = 0x0A;
-	inputBuffer[1] = 0x02;
-	inputBuffer[2] = 0x00;
-	inputBuffer[3] = 0x04;
+	inputBuffer[0] = 0x0A; // OpCode
+	inputBuffer[1] = 0x01; // Packet ID
+	inputBuffer[2] = 0x02; // NumBytes
+	inputBuffer[3] = 0x00; // 2 Bytes Payload
+	inputBuffer[4] = 0x04;
 	ExecuteControlOpCodes();
 
 	ExpectedValue valueList[2];
@@ -216,12 +217,13 @@ void TestSetPositionOpCode()
 	SetDeviceName("Test");
 
 	ClearInputBuffer();
-	inputBuffer[0] = 0x0B;
-	inputBuffer[1] = 0x04;
-	inputBuffer[2] = 0x01;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x10;
-	inputBuffer[5] = 0x10;
+	inputBuffer[0] = 0x0B; // OpCode
+	inputBuffer[1] = 0x09; // Packet ID
+	inputBuffer[2] = 0x04; // NumBytes
+	inputBuffer[3] = 0x01; // X
+	inputBuffer[4] = 0x01;
+	inputBuffer[5] = 0x10; // Y
+	inputBuffer[6] = 0x10;
 	ExecuteControlOpCodes();
 	heepByte deviceID [STANDARD_ID_SIZE] = {0x06, 0x04, 0x06, 0x01};
 	int x = 0; int y = 0; unsigned int xyMemPosition = 0; 
@@ -237,12 +239,13 @@ void TestSetPositionOpCode()
 	valueList[1].actualValue = y;
 
 	ClearInputBuffer();
-	inputBuffer[0] = 0x0B;
-	inputBuffer[1] = 0x04;
-	inputBuffer[2] = 0xF1;
-	inputBuffer[3] = 0x02;
-	inputBuffer[4] = 0xB2;
-	inputBuffer[5] = 0x3C;
+	inputBuffer[0] = 0x0B; // OpCode
+	inputBuffer[1] = 0x19; // Packet ID
+	inputBuffer[2] = 0x04; // NumBytes
+	inputBuffer[3] = 0xF1; // X
+	inputBuffer[4] = 0x02;
+	inputBuffer[5] = 0xB2; // Y
+	inputBuffer[6] = 0x3C;
 	ExecuteControlOpCodes();
 	GetXYFromMemory_Byte(&x, &y, deviceID, &xyMemPosition);
 
@@ -265,26 +268,27 @@ void TestSetVertxCOP()
 	ClearDeviceMemory();
 	ClearInputBuffer();
 
-	inputBuffer[0] = 0x0C;
-	inputBuffer[1] = 0x04;
+	inputBuffer[0] = 0x0C; // OpCode
+	inputBuffer[1] = 0x42; // Packet ID
+	inputBuffer[2] = 0x04; // Num Bytes
 
-	inputBuffer[2] = 0xF1;
-	inputBuffer[3] = 0x02;
-	inputBuffer[4] = 0xB2;
-	inputBuffer[5] = 0x3C;
+	inputBuffer[3] = 0xF1;
+	inputBuffer[4] = 0x02;
+	inputBuffer[5] = 0xB2;
+	inputBuffer[6] = 0x3C;
 
-	inputBuffer[6] = 0x1A;
-	inputBuffer[7] = 0x2D;
-	inputBuffer[8] = 0x40;
-	inputBuffer[9] = 0x02;
+	inputBuffer[7] = 0x1A;
+	inputBuffer[8] = 0x2D;
+	inputBuffer[9] = 0x40;
+	inputBuffer[10] = 0x02;
 
-	inputBuffer[10] = 0x01;
-	inputBuffer[11] = 0x02;
+	inputBuffer[11] = 0x01;
+	inputBuffer[12] = 0x02;
 
-	inputBuffer[12] = 0xC0;
-	inputBuffer[13] = 0xD0;
-	inputBuffer[14] = 0x20;
-	inputBuffer[15] = 0x02;
+	inputBuffer[13] = 0xC0;
+	inputBuffer[14] = 0xD0;
+	inputBuffer[15] = 0x20;
+	inputBuffer[16] = 0x02;
 	ExecuteControlOpCodes();
 
 	Vertex_Byte newVertex;
@@ -337,22 +341,23 @@ void TestAddMOPOpCode()
 	ClearInputBuffer();
 
 	// Add a random clients name
-	inputBuffer[0] = 0x13;
-	inputBuffer[1] = 0x0B;
+	inputBuffer[0] = 0x13; // OpCode
+	inputBuffer[1] = 0x91; // Packet ID
+	inputBuffer[2] = 0x0B; // NumBytes
 
-	inputBuffer[2] = 0x06;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x02;
-	inputBuffer[5] = 0x03;
-	inputBuffer[6] = 0x04;
-	inputBuffer[7] = 0x05;
+	inputBuffer[3] = 0x06;
+	inputBuffer[4] = 0x01;
+	inputBuffer[5] = 0x02;
+	inputBuffer[6] = 0x03;
+	inputBuffer[7] = 0x04;
+	inputBuffer[8] = 0x05;
 
-	inputBuffer[8] = 'J';
-	inputBuffer[9] = 'a';
-	inputBuffer[10] = 'm';
+	inputBuffer[9] = 'J';
+	inputBuffer[10] = 'a';
+	inputBuffer[11] = 'm';
 
-	inputBuffer[11] = 'e';
-	inputBuffer[12] = 's';
+	inputBuffer[12] = 'e';
+	inputBuffer[13] = 's';
 
 	unsigned int beforeMemory = curFilledMemory;
 
@@ -413,22 +418,23 @@ void TestDeleteMOPOpCode()
 	UpdateXYInMemory_Byte(1234, 161, deviceID);
 
 	// Add a random clients name
-	inputBuffer[0] = 0x15;
-	inputBuffer[1] = 0x0B;
+	inputBuffer[0] = 0x15; // OpCode
+	inputBuffer[1] = 0x61; // Packet ID
+	inputBuffer[2] = 0x0B; // NumBytes
 
-	inputBuffer[2] = 0x06;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x02;
-	inputBuffer[5] = 0x03;
-	inputBuffer[6] = 0x04;
-	inputBuffer[7] = 0x05;
+	inputBuffer[3] = 0x06;
+	inputBuffer[4] = 0x01;
+	inputBuffer[5] = 0x02;
+	inputBuffer[6] = 0x03;
+	inputBuffer[7] = 0x04;
+	inputBuffer[8] = 0x05;
 
-	inputBuffer[8] = 'J';
-	inputBuffer[9] = 'a';
-	inputBuffer[10] = 'm';
+	inputBuffer[9] = 'J';
+	inputBuffer[10] = 'a';
+	inputBuffer[11] = 'm';
 
-	inputBuffer[11] = 'e';
-	inputBuffer[12] = 's';
+	inputBuffer[12] = 'e';
+	inputBuffer[13] = 's';
 
 #ifdef USE_INDEXED_IDS
 	unsigned char valAtSpotBeforeDeleteion = deviceMemory[15];
