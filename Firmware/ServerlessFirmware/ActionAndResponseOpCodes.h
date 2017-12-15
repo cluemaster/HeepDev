@@ -207,6 +207,30 @@ void HandleAckBufferTimeouts()
 
 }
 
+void CheckReceivedROP()
+{
+	int currentAckIndex = 0;
+	do
+	{
+		heepByte ROPPacketID = GetPacketIDFromInputBuffer();
+		heepByte AckPacketID = ackBuffer[currentAckIndex + 3]; // +0 = Timeout, +1 = Retries, +2 = OpCode, +3 = PacketID
+
+		if(ROPPacketID == AckPacketID)
+		{
+			DeleteAckDataAtIndex(currentAckIndex);
+			return;
+		}
+
+		int nextAckIndex = GetNextAckIndex(currentAckIndex);
+
+		if(nextAckIndex == currentAckIndex) // Ack not found
+		{
+			return;
+		}
+	}while(1);
+	
+}
+
 void AddNewCharToOutputBuffer(unsigned char newMem)
 {
 	outputBufferLastByte = AddCharToBuffer(outputBuffer, outputBufferLastByte, newMem);
