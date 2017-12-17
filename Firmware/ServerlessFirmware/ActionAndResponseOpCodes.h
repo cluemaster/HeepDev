@@ -3,6 +3,8 @@
 
 #include "Device.h"
 
+heepByte ackBuffer [RESEND_ACK_BYTES];
+
 void ClearOutputBuffer()
 {
 	outputBufferLastByte = 0;
@@ -11,6 +13,227 @@ void ClearOutputBuffer()
 void ClearInputBuffer()
 {
 	inputBufferLastByte = 0;
+}
+
+heepByte GetPacketIDFromInputBuffer()
+{
+	// We know that the packet ID is always at position 1 for now....
+	return inputBuffer[1];
+}
+
+int GetNextAckIndex(int index)
+{
+	if(ackBuffer[index] == 0) // Time
+	{
+		return index; 
+	}
+
+	index++; // Retry Counter
+	if(index > RESEND_ACK_BYTES) return index;
+
+	index++; // OpCode
+	if(index > RESEND_ACK_BYTES) return index;
+
+	index++; // Packet ID
+	if(index > RESEND_ACK_BYTES) return index;
+
+	// NEED TO ADD WHEN WE HAVE ACCESS CODES
+	// index += ACCESS_CODE_SIZE + 1;
+	// if(index > RESEND_ACK_BYTES) return index;
+	index++;
+	index += ackBuffer[index] + 1; // Get NumBytes
+
+	return index;
+}
+
+heepByte GetNewCOPID()
+{
+	// ToDo: Check current COP IDs stored in ack memory, and make a new ID
+	return 0;
+}
+
+// Ack consists of [TIME, RETRY_COUNT, OUTPUTBUFFER]
+void ClearAckBuffer()
+{
+	// 0 will indicate that nothing is there since no COPs are 0, and time will not be 0. If time is 0, then the 
+	// packet will receive an extra 10ms to live.
+	for(int i = 0; i < RESEND_ACK_BYTES; i++)
+	{
+		ackBuffer[i] = 0;
+	}
+}
+
+void DeleteAckDataAtIndex(int index)
+{
+	int localTracker = index;
+	ackBuffer[localTracker] = 0; // Set time to 0
+	localTracker++;
+	ackBuffer[localTracker] = 0; // Set retry count to 0
+	localTracker++;
+	ackBuffer[localTracker] = 0; // Set OpCode to 0
+	localTracker++;
+	ackBuffer[localTracker] = 0; // Set packet ID to 0
+	localTracker++;
+	int numBytesToDelete = ackBuffer[localTracker];
+	ackBuffer[localTracker] = 0; // Set numBytes to 0
+	localTracker++;
+
+	for( ; localTracker < index + numBytesToDelete + ACK_TIMEOUT_SIZE + ACK_RETRY_SIZE + OPCODE_SIZE + PACKETID_SIZE + NUM_BYTES_SIZE; localTracker++)
+	{
+		ackBuffer[localTracker] = 0;
+	}
+
+	for(int i = index; i < RESEND_ACK_BYTES; i++)
+	{
+		ackBuffer[i] = ackBuffer[localTracker];
+		localTracker++;
+	}
+}
+
+int GetNextOpenAckPositionPointer()
+{
+	int counter = 0;
+
+	while(1)
+	{
+		int lastCounter = counter;
+		counter = GetNextAckIndex(counter);
+
+		if(counter == lastCounter)
+			return counter;
+	}
+
+	return counter;
+}
+
+void ClearAckBufferFromIndexToEnd(int index)
+{
+	for(int i = index; i < RESEND_ACK_BYTES; i++)
+	{
+		ackBuffer[index] = 0;
+	}
+}
+
+heepByte GetAdjustedTimeoutTime()
+{
+	heepByte time = GetMillis()/10;
+
+	// Time cannot be 0 because we delimit with that number
+	if(time == 0)
+		time = 1;
+
+	return time;
+}
+
+void AddCurrentOutputBufferToAckBuffer()
+{
+	heepByte timeByte = GetAdjustedTimeoutTime();
+	int firstIndex = GetNextOpenAckPositionPointer();
+
+	if(firstIndex + outputBufferLastByte + 1 > RESEND_ACK_BYTES)
+	{
+		return; // FAILED FROM NOT ENOUGH MEMORY. HANDLE IN SOME WAY
+	}
+
+	ackBuffer[firstIndex] = timeByte;
+	ackBuffer[firstIndex + 1] = 0; // Num retries starts at 0
+	for(int i = 0; i < outputBufferLastByte; i++)
+	{
+		ackBuffer[firstIndex + i + 2] = outputBuffer[i];
+	}
+}
+
+// Get the displacement between two byte values.
+// Assume that value Left was recorded earlier than value Right
+// Also assume that valueRight has not passed value left
+heepByte GetByteValueDisplacementMovingRight(heepByte ValueLeft, heepByte valueRight)
+{
+	int displacement = 0;
+	if(valueRight < ValueLeft)
+	{
+		displacement = (0xff+valueRight) - ValueLeft;
+	}
+	else 
+	{
+		displacement = valueRight - ValueLeft;
+	}
+
+	return (heepByte)displacement;
+}
+
+heepByte HandleAckTime(heepByte ackStartTime, heepByte retryCount)
+{
+	heepByte currentTime = GetAdjustedTimeoutTime();
+	heepByte ackEndTime = (ackStartTime + ACK_TIMEOUT)%0xff;
+
+	heepByte valueDisplacement = GetByteValueDisplacementMovingRight(currentTime, ackEndTime);
+	
+	if(valueDisplacement > ACK_TIMEOUT) // Check Timeout
+	{
+		return 1; // Timed out
+	}
+	else if(valueDisplacement > (ACK_TIMEOUT/NUM_RETRIES) * (retryCount+1) ) // Check Retry
+	{
+		return 2; // Need to resend
+	}
+
+
+	return 0;
+}
+
+void HandleAckBufferTimeouts()
+{
+	int counter = 0;
+
+	while(1)
+	{
+		heepByte ackResponse = HandleAckTime(ackBuffer[counter], ackBuffer[counter + 1]);
+		if(ackResponse == 1) // Handle timeout
+		{
+			DeleteAckDataAtIndex(counter);
+		}
+		else if(ackResponse == 2) // Retry Send
+		{
+			//ToDo: Do retry send here
+
+			ackBuffer[counter + 1]++; // Add 1 to retry counter
+
+			counter = GetNextAckIndex(counter);
+			if(counter == GetNextOpenAckPositionPointer())
+				return;
+		}
+		else // Just Move On
+		{
+			counter = GetNextAckIndex(counter);
+			if(counter == GetNextOpenAckPositionPointer())
+				return;
+		}
+	}
+
+}
+
+void CheckReceivedROP()
+{
+	int currentAckIndex = 0;
+	do
+	{
+		heepByte ROPPacketID = GetPacketIDFromInputBuffer();
+		heepByte AckPacketID = ackBuffer[currentAckIndex + ACK_RETRY_SIZE + OPCODE_SIZE + PACKETID_SIZE]; // +0 = Timeout, +1 = Retries, +2 = OpCode, +3 = PacketID
+
+		if(ROPPacketID == AckPacketID)
+		{
+			DeleteAckDataAtIndex(currentAckIndex);
+			return;
+		}
+
+		int nextAckIndex = GetNextAckIndex(currentAckIndex);
+
+		if(nextAckIndex == currentAckIndex) // Ack not found
+		{
+			return;
+		}
+	}while(1);
+	
 }
 
 void AddNewCharToOutputBuffer(unsigned char newMem)
@@ -59,6 +282,7 @@ void FillOutputBufferWithSetValCOP(unsigned char controlID, unsigned char value)
 {
 	ClearOutputBuffer();
 	AddNewCharToOutputBuffer(SetValueOpCode);
+	AddNewCharToOutputBuffer(GetNewCOPID());
 	AddNewCharToOutputBuffer(2);
 	AddNewCharToOutputBuffer(controlID);
 	AddNewCharToOutputBuffer(value);
@@ -97,12 +321,13 @@ void FillOutputBufferWithDynamicMemorySize()
 }
 
 // Updated
-void FillOutputBufferWithMemoryDump()
+void FillOutputBufferWithMemoryDump(heepByte packetID)
 {
 	ClearOutputBuffer();
 	
 	AddNewCharToOutputBuffer(MemoryDumpOpCode);
 	AddDeviceIDToOutputBuffer_Byte(deviceIDByte);
+	AddNewCharToOutputBuffer(packetID);
 
 	unsigned long totalMemory = curFilledMemory + CalculateCoreMemorySize() + 1;
 
@@ -131,12 +356,13 @@ void FillOutputBufferWithMemoryDump()
 }
 
 // Updated
-void FillOutputBufferWithSuccess(char* message, int stringLength)
+void FillOutputBufferWithSuccess(char* message, int stringLength, heepByte packetID)
 {
 	ClearOutputBuffer();
 
 	AddNewCharToOutputBuffer(SuccessOpCode);
 	AddDeviceIDToOutputBuffer_Byte(deviceIDByte);
+	AddNewCharToOutputBuffer(packetID);
 
 	unsigned long totalMemory = strlen(message);
 
@@ -149,12 +375,13 @@ void FillOutputBufferWithSuccess(char* message, int stringLength)
 }
 
 // Updated
-void FillOutputBufferWithError(char* message, int stringLength)
+void FillOutputBufferWithError(char* message, int stringLength, heepByte packetID)
 {
 	ClearOutputBuffer();
 
 	AddNewCharToOutputBuffer(ErrorOpCode);
 	AddDeviceIDToOutputBuffer_Byte(deviceIDByte);
+	AddNewCharToOutputBuffer(packetID);
 
 	unsigned long totalMemory = strlen(message);
 
@@ -168,12 +395,12 @@ void FillOutputBufferWithError(char* message, int stringLength)
 
 void ExecuteMemoryDumpOpCode()
 {
-	FillOutputBufferWithMemoryDump();
+	FillOutputBufferWithMemoryDump(GetPacketIDFromInputBuffer());
 }
 
 void ExecuteSetValOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 	unsigned char numBytes = inputBuffer[counter++];
 	unsigned char controlID = inputBuffer[counter++];
 	unsigned int value = GetNumberFromBuffer(inputBuffer, &counter, numBytes - 1);
@@ -183,19 +410,19 @@ void ExecuteSetValOpCode()
 	if(success == 0)
 	{
 		char SuccessMessage [] = "Value Set";
-		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 	}
 	else 
 	{
 		char ErrorMessage [] = "Failed to Set";
-		FillOutputBufferWithError(ErrorMessage, strlen(ErrorMessage));
+		FillOutputBufferWithError(ErrorMessage, strlen(ErrorMessage), GetPacketIDFromInputBuffer());
 	}
 }
 
 // Updatded
 void ExecuteSetPositionOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 	unsigned char numBytes = inputBuffer[counter++];
 	unsigned int xValue = GetNumberFromBuffer(inputBuffer, &counter, 2);
 	unsigned int yValue = GetNumberFromBuffer(inputBuffer, &counter, 2);
@@ -203,7 +430,7 @@ void ExecuteSetPositionOpCode()
 	UpdateXYInMemory_Byte(xValue, yValue, deviceIDByte);
 
 	char SuccessMessage [] = "Value Set";
-	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 }
 
 // Updated
@@ -212,7 +439,7 @@ void ExecuteSetVertexOpCode()
 	struct Vertex_Byte myVertex;
 
 	unsigned int localCounter = 0;
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 	unsigned char numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	AddBufferToBuffer(myVertex.txID, inputBuffer, STANDARD_ID_SIZE, &localCounter, &counter);
 	localCounter = 0;
@@ -233,7 +460,7 @@ void ExecuteSetVertexOpCode()
 
 	ClearOutputBuffer();
 	char SuccessMessage [] = "Vertex Set";
-	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+	FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 }
 
 // Updated
@@ -242,7 +469,7 @@ void ExecuteDeleteVertexOpCode()
 	struct Vertex_Byte myVertex;
 
 	unsigned int localCounter = 0;
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 	unsigned char numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	AddBufferToBuffer(myVertex.txID, inputBuffer, STANDARD_ID_SIZE, &localCounter, &counter);
 	localCounter = 0;
@@ -263,13 +490,13 @@ void ExecuteDeleteVertexOpCode()
 	{
 		ClearOutputBuffer();
 		char errorMessage [] = "Failed to delete Vertex!";
-		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage), GetPacketIDFromInputBuffer());
 	}
 	else
 	{
 		ClearOutputBuffer();
 		char SuccessMessage [] = "Vertex Deleted!";
-		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 	}
 }
 
@@ -307,7 +534,7 @@ int ValidateAndRestructureIncomingMOP(unsigned int MOPStartAddr, unsigned int* n
 
 void ExecuteDeleteMOPOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 
 	unsigned int numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 	int dataError = ValidateAndRestructureIncomingMOP(counter, &numBytes);
@@ -345,26 +572,26 @@ void ExecuteDeleteMOPOpCode()
 		{
 			ClearOutputBuffer();
 			char SuccessMessage [] = "MOP Deleted!";
-			FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+			FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 		}
 		else
 		{
 			ClearOutputBuffer();
 			char MyerrorMessage [] = "Cannot Delete: MOP not found";
-			FillOutputBufferWithError(MyerrorMessage, strlen(MyerrorMessage));
+			FillOutputBufferWithError(MyerrorMessage, strlen(MyerrorMessage), GetPacketIDFromInputBuffer());
 		}
 	}
 	else
 	{
 		ClearOutputBuffer();
 		char errorMessage [] = "Cannot Delete: Generic MOP was invalid!";
-		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage), GetPacketIDFromInputBuffer());
 	}
 }
 
 void ExecuteAddMOPOpCode()
 {
-	unsigned int counter = 1;
+	unsigned int counter = 2;
 
 	unsigned int numBytes = GetNumberFromBuffer(inputBuffer, &counter, 1);
 
@@ -380,13 +607,13 @@ void ExecuteAddMOPOpCode()
 
 		ClearOutputBuffer();
 		char SuccessMessage [] = "MOP Added!";
-		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage));
+		FillOutputBufferWithSuccess(SuccessMessage, strlen(SuccessMessage), GetPacketIDFromInputBuffer());
 	}
 	else
 	{
 		ClearOutputBuffer();
 		char errorMessage [] = "Cannot Add: Delivered Generic MOP was determined to be invalid!";
-		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage), GetPacketIDFromInputBuffer());
 	}
 
 }
@@ -437,7 +664,7 @@ void ExecuteControlOpCodes()
 	else
 	{
 		char errorMessage [] = "Invalid COP Received";
-		FillOutputBufferWithError(errorMessage, strlen(errorMessage));
+		FillOutputBufferWithError(errorMessage, strlen(errorMessage), GetPacketIDFromInputBuffer());
 	}
 }
 

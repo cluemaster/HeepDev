@@ -49,10 +49,12 @@ void TestMemoryDumpROP()
 		deviceIDByte[i] = i+1;
 	}
 
+	heepByte fakePacketID = 20;
+
 	ClearDeviceMemory();
 	SetDeviceName("Jacob");
 	ClearOutputBuffer();
-	FillOutputBufferWithMemoryDump();
+	FillOutputBufferWithMemoryDump(fakePacketID);
 
 	PrintOutputBuffer();
 
@@ -153,10 +155,11 @@ void TestSetValSuccess()
 	AddControl(theControl);
 
 	ClearInputBuffer();
-	inputBuffer[0] = 0x0A;
-	inputBuffer[1] = 0x02;
-	inputBuffer[2] = 0x00;
-	inputBuffer[3] = 0x04;
+	inputBuffer[0] = 0x0A; // OpCode
+	inputBuffer[1] = 0x01; // Packet ID
+	inputBuffer[2] = 0x02; // NumBytes
+	inputBuffer[3] = 0x00; // 2 Bytes Payload
+	inputBuffer[4] = 0x04;
 	ExecuteControlOpCodes();
 
 	ExpectedValue valueList[2];
@@ -214,12 +217,13 @@ void TestSetPositionOpCode()
 	SetDeviceName("Test");
 
 	ClearInputBuffer();
-	inputBuffer[0] = 0x0B;
-	inputBuffer[1] = 0x04;
-	inputBuffer[2] = 0x01;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x10;
-	inputBuffer[5] = 0x10;
+	inputBuffer[0] = 0x0B; // OpCode
+	inputBuffer[1] = 0x09; // Packet ID
+	inputBuffer[2] = 0x04; // NumBytes
+	inputBuffer[3] = 0x01; // X
+	inputBuffer[4] = 0x01;
+	inputBuffer[5] = 0x10; // Y
+	inputBuffer[6] = 0x10;
 	ExecuteControlOpCodes();
 	heepByte deviceID [STANDARD_ID_SIZE] = {0x06, 0x04, 0x06, 0x01};
 	int x = 0; int y = 0; unsigned int xyMemPosition = 0; 
@@ -235,12 +239,13 @@ void TestSetPositionOpCode()
 	valueList[1].actualValue = y;
 
 	ClearInputBuffer();
-	inputBuffer[0] = 0x0B;
-	inputBuffer[1] = 0x04;
-	inputBuffer[2] = 0xF1;
-	inputBuffer[3] = 0x02;
-	inputBuffer[4] = 0xB2;
-	inputBuffer[5] = 0x3C;
+	inputBuffer[0] = 0x0B; // OpCode
+	inputBuffer[1] = 0x19; // Packet ID
+	inputBuffer[2] = 0x04; // NumBytes
+	inputBuffer[3] = 0xF1; // X
+	inputBuffer[4] = 0x02;
+	inputBuffer[5] = 0xB2; // Y
+	inputBuffer[6] = 0x3C;
 	ExecuteControlOpCodes();
 	GetXYFromMemory_Byte(&x, &y, deviceID, &xyMemPosition);
 
@@ -263,26 +268,27 @@ void TestSetVertxCOP()
 	ClearDeviceMemory();
 	ClearInputBuffer();
 
-	inputBuffer[0] = 0x0C;
-	inputBuffer[1] = 0x04;
+	inputBuffer[0] = 0x0C; // OpCode
+	inputBuffer[1] = 0x42; // Packet ID
+	inputBuffer[2] = 0x04; // Num Bytes
 
-	inputBuffer[2] = 0xF1;
-	inputBuffer[3] = 0x02;
-	inputBuffer[4] = 0xB2;
-	inputBuffer[5] = 0x3C;
+	inputBuffer[3] = 0xF1;
+	inputBuffer[4] = 0x02;
+	inputBuffer[5] = 0xB2;
+	inputBuffer[6] = 0x3C;
 
-	inputBuffer[6] = 0x1A;
-	inputBuffer[7] = 0x2D;
-	inputBuffer[8] = 0x40;
-	inputBuffer[9] = 0x02;
+	inputBuffer[7] = 0x1A;
+	inputBuffer[8] = 0x2D;
+	inputBuffer[9] = 0x40;
+	inputBuffer[10] = 0x02;
 
-	inputBuffer[10] = 0x01;
-	inputBuffer[11] = 0x02;
+	inputBuffer[11] = 0x01;
+	inputBuffer[12] = 0x02;
 
-	inputBuffer[12] = 0xC0;
-	inputBuffer[13] = 0xD0;
-	inputBuffer[14] = 0x20;
-	inputBuffer[15] = 0x02;
+	inputBuffer[13] = 0xC0;
+	inputBuffer[14] = 0xD0;
+	inputBuffer[15] = 0x20;
+	inputBuffer[16] = 0x02;
 	ExecuteControlOpCodes();
 
 	Vertex_Byte newVertex;
@@ -335,22 +341,23 @@ void TestAddMOPOpCode()
 	ClearInputBuffer();
 
 	// Add a random clients name
-	inputBuffer[0] = 0x13;
-	inputBuffer[1] = 0x0B;
+	inputBuffer[0] = 0x13; // OpCode
+	inputBuffer[1] = 0x91; // Packet ID
+	inputBuffer[2] = 0x0B; // NumBytes
 
-	inputBuffer[2] = 0x06;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x02;
-	inputBuffer[5] = 0x03;
-	inputBuffer[6] = 0x04;
-	inputBuffer[7] = 0x05;
+	inputBuffer[3] = 0x06;
+	inputBuffer[4] = 0x01;
+	inputBuffer[5] = 0x02;
+	inputBuffer[6] = 0x03;
+	inputBuffer[7] = 0x04;
+	inputBuffer[8] = 0x05;
 
-	inputBuffer[8] = 'J';
-	inputBuffer[9] = 'a';
-	inputBuffer[10] = 'm';
+	inputBuffer[9] = 'J';
+	inputBuffer[10] = 'a';
+	inputBuffer[11] = 'm';
 
-	inputBuffer[11] = 'e';
-	inputBuffer[12] = 's';
+	inputBuffer[12] = 'e';
+	inputBuffer[13] = 's';
 
 	unsigned int beforeMemory = curFilledMemory;
 
@@ -411,22 +418,23 @@ void TestDeleteMOPOpCode()
 	UpdateXYInMemory_Byte(1234, 161, deviceID);
 
 	// Add a random clients name
-	inputBuffer[0] = 0x15;
-	inputBuffer[1] = 0x0B;
+	inputBuffer[0] = 0x15; // OpCode
+	inputBuffer[1] = 0x61; // Packet ID
+	inputBuffer[2] = 0x0B; // NumBytes
 
-	inputBuffer[2] = 0x06;
-	inputBuffer[3] = 0x01;
-	inputBuffer[4] = 0x02;
-	inputBuffer[5] = 0x03;
-	inputBuffer[6] = 0x04;
-	inputBuffer[7] = 0x05;
+	inputBuffer[3] = 0x06;
+	inputBuffer[4] = 0x01;
+	inputBuffer[5] = 0x02;
+	inputBuffer[6] = 0x03;
+	inputBuffer[7] = 0x04;
+	inputBuffer[8] = 0x05;
 
-	inputBuffer[8] = 'J';
-	inputBuffer[9] = 'a';
-	inputBuffer[10] = 'm';
+	inputBuffer[9] = 'J';
+	inputBuffer[10] = 'a';
+	inputBuffer[11] = 'm';
 
-	inputBuffer[11] = 'e';
-	inputBuffer[12] = 's';
+	inputBuffer[12] = 'e';
+	inputBuffer[13] = 's';
 
 #ifdef USE_INDEXED_IDS
 	unsigned char valAtSpotBeforeDeleteion = deviceMemory[15];
@@ -454,6 +462,171 @@ void TestDeleteMOPOpCode()
 	CheckResults(TestName, valueList, 2);
 }
 
+
+void TestFindNextAckIndex()
+{
+	std::string TestName = "Test Find Next Ack Index";
+
+	ClearAckBuffer();
+	ackBuffer[0] = 10; // Timeout
+	ackBuffer[1] = 0; // Num Retries
+	ackBuffer[2] = 0x02; // OpCode
+	ackBuffer[3] = 0x12; // Packet ID
+	ackBuffer[4] = 0x04; // Num Bytes
+	ackBuffer[5] = 0x01; // Payload
+	ackBuffer[6] = 0x02;
+	ackBuffer[7] = 0x03;
+	ackBuffer[8] = 0x04;
+
+	ackBuffer[9] = 4; // Timeout
+	ackBuffer[10] = 1; // Num Retries
+	ackBuffer[11] = 0x09; // OpCode
+	ackBuffer[12] = 0x11; // Packet ID
+	ackBuffer[13] = 0x00; // Num Bytes
+
+	ackBuffer[14] = 2; // Timeout
+	ackBuffer[15] = 0; // Num Retries
+	ackBuffer[16] = 0x02; // OpCode
+	ackBuffer[17] = 0x1d; // Packet ID
+	ackBuffer[18] = 0x02; // Num Bytes
+	ackBuffer[19] = 0x03; // Payload
+	ackBuffer[20] = 0x09;
+
+	int nextindex = GetNextOpenAckPositionPointer();
+
+	ExpectedValue valueList[1];
+	valueList[0].valueName = "Index";
+	valueList[0].expectedValue = 21;
+	valueList[0].actualValue = nextindex;
+
+	CheckResults(TestName, valueList, 1);
+}
+
+void TestByteDisplacement()
+{
+	std::string TestName = "Test Byte Displacement";
+
+	heepByte valueLeft = 10;
+	heepByte valueRight = 30;
+	heepByte Displacement1 = GetByteValueDisplacementMovingRight(valueLeft, valueRight);
+
+	valueLeft = 130;
+	valueRight = 30;
+	heepByte Displacement2 = GetByteValueDisplacementMovingRight(valueLeft, valueRight);
+
+	ExpectedValue valueList[2];
+	valueList[0].valueName = "Displacement no Wrap";
+	valueList[0].expectedValue = 20;
+	valueList[0].actualValue = Displacement1;
+
+	valueList[1].valueName = "Displacement Wrap";
+	valueList[1].expectedValue = 155;
+	valueList[1].actualValue = Displacement2;
+
+	CheckResults(TestName, valueList, 2);
+}
+
+void TestDeleteAckAtIndex()
+{
+	std::string TestName = "Test Delete Ack at Index";
+
+	ClearAckBuffer();
+	ackBuffer[0] = 10; // Timeout
+	ackBuffer[1] = 0; // Num Retries
+	ackBuffer[2] = 0x02; // OpCode
+	ackBuffer[3] = 0x12; // Packet ID
+	ackBuffer[4] = 0x04; // Num Bytes
+	ackBuffer[5] = 0x01; // Payload
+	ackBuffer[6] = 0x02;
+	ackBuffer[7] = 0x03;
+	ackBuffer[8] = 0x04;
+
+	ackBuffer[9] = 4; // Timeout
+	ackBuffer[10] = 1; // Num Retries
+	ackBuffer[11] = 0x09; // OpCode
+	ackBuffer[12] = 0x11; // Packet ID
+	ackBuffer[13] = 0x00; // Num Bytes
+
+	ackBuffer[14] = 2; // Timeout
+	ackBuffer[15] = 0; // Num Retries
+	ackBuffer[16] = 0x02; // OpCode
+	ackBuffer[17] = 0x1d; // Packet ID
+	ackBuffer[18] = 0x02; // Num Bytes
+	ackBuffer[19] = 0x03; // Payload
+	ackBuffer[20] = 0x09;
+
+	DeleteAckDataAtIndex(9);
+	int valueAt9 = ackBuffer[9];
+
+	DeleteAckDataAtIndex(0);
+	int valueAt01 = ackBuffer[0];
+
+	DeleteAckDataAtIndex(0);
+	int valueAt02 = ackBuffer[0];
+
+	ExpectedValue valueList[3];
+	valueList[0].valueName = "Value After 1 Delete";
+	valueList[0].expectedValue = 2;
+	valueList[0].actualValue = valueAt9;
+
+	valueList[1].valueName = "Value After 2 Delete";
+	valueList[1].expectedValue = 2;
+	valueList[1].actualValue = valueAt01;
+
+	valueList[2].valueName = "Value After 3 Delete";
+	valueList[2].expectedValue = 0;
+	valueList[2].actualValue = valueAt02;
+
+	CheckResults(TestName, valueList, 3);
+}
+
+void TestHandleAckBufferTimeouts()
+{
+	std::string TestName = "Test Ack Timeout";
+
+	ClearAckBuffer();
+	ackBuffer[0] = 10; // Timeout
+	ackBuffer[1] = 0; // Num Retries
+	ackBuffer[2] = 0x02; // OpCode
+	ackBuffer[3] = 0x12; // Packet ID
+	ackBuffer[4] = 0x04; // Num Bytes
+	ackBuffer[5] = 0x01; // Payload
+	ackBuffer[6] = 0x02;
+	ackBuffer[7] = 0x03;
+	ackBuffer[8] = 0x04;
+
+	ackBuffer[9] = 253; // Timeout
+	ackBuffer[10] = 1; // Num Retries
+	ackBuffer[11] = 0x09; // OpCode
+	ackBuffer[12] = 0x11; // Packet ID
+	ackBuffer[13] = 0x00; // Num Bytes
+
+	ackBuffer[14] = 246; // Timeout
+	ackBuffer[15] = 0; // Num Retries
+	ackBuffer[16] = 0x02; // OpCode
+	ackBuffer[17] = 0x1d; // Packet ID
+	ackBuffer[18] = 0x02; // Num Bytes
+	ackBuffer[19] = 0x03; // Payload
+	ackBuffer[20] = 0x09;
+
+	HandleAckBufferTimeouts();
+
+	ExpectedValue valueList[3];
+	valueList[0].valueName = "Value at 0 after Delete";
+	valueList[0].expectedValue = 253;
+	valueList[0].actualValue = ackBuffer[0];
+
+	valueList[1].valueName = "Proof of Retry";
+	valueList[1].expectedValue = 2;
+	valueList[1].actualValue = ackBuffer[1];
+
+	valueList[2].valueName = "Data moved on successfully";
+	valueList[2].expectedValue = 246;
+	valueList[2].actualValue = ackBuffer[5];
+
+	CheckResults(TestName, valueList, 3);
+}
+
 void TestActionAndResponseOpCodes()
 {
 	TestClearOutputBufferAndAddChar();
@@ -466,4 +639,8 @@ void TestActionAndResponseOpCodes()
 	TestSetVertxCOP();
 	TestAddMOPOpCode();
 	TestDeleteMOPOpCode();
+	TestFindNextAckIndex();
+	TestByteDisplacement();
+	TestDeleteAckAtIndex();
+	TestHandleAckBufferTimeouts();
 }

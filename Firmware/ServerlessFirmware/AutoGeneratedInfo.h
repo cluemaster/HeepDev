@@ -17,11 +17,18 @@
 #define NUM_CONTROLS 100		// Control Pointers
 #define OUTPUT_BUFFER_SIZE 200	// Bytes
 #define INPUT_BUFFER_SIZE 200	// Bytes
+#define RESEND_ACK_BYTES 200    // Bytes
 
 // Heep OS Task Scheduling System
 // Determine how frequently a task is run and how many tasks can be made
 #define SYSTEM_TASK_INTERVAL 1000 // Time in ms
 #define NUMBER_OF_TASKS 4
+
+// Timeout is total timeout for packet.
+// Packet will retry NUM_RETRIES time within ACK_TIMEOUT
+// ACK_TIMEOUT is in 10s of milliseconds. So ACK_TIMEOUT of 10 is a 100ms timeout.
+#define ACK_TIMEOUT 10 // In 10ms increments
+#define NUM_RETRIES 3
 
 // Indexed IDs are a form of compression that can be used
 // on memory limited devices. These are particularly useful
