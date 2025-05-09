@@ -1,0 +1,30 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY modernization/python_server/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create directory for certificates
+RUN mkdir -p /app/certs
+
+# Copy server code
+COPY modernization/python_server/*.py /app/
+
+# Create data directory
+RUN mkdir -p /data
+VOLUME /data
+
+# Set environment variables
+ENV HEEP_LOG_LEVEL=INFO \
+    HEEP_HOST=0.0.0.0 \
+    HEEP_PORT=8088 \
+    HEEP_SSL_ENABLED=false \
+    PYTHONUNBUFFERED=1
+
+# Expose the server port
+EXPOSE 8088
+
+# Command to run the server
+CMD ["python", "server.py"]
