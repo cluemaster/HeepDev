@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # Heep Server - Python 3.11 with asyncio
+  heep-server:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.server
+    ports:
+      - "8088:8088"
+    volumes:
+      - ../python_server:/app
+      - heep_data:/data
+    networks:
+      - heep-network
+    restart: unless-stopped
+    environment:
+      - HEEP_LOG_LEVEL=INFO
+      - HEEP_HOST=0.0.0.0
+      - HEEP_PORT=8088
+      - HEEP_SSL_ENABLED=false
+
+  # Web Frontend for Heep
+  heep-frontend:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../frontend:/app
+    networks:
+      - heep-network
+    depends_on:
+      - heep-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - HEEP_SERVER_URL=ws://heep-server:8088
+
+  # MongoDB for persistent storage
+  mongodb:
+    image: mongo:6.0
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - heep-network
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=heep
+      - MONGO_INITDB_ROOT_PASSWORD=heep_secure_password
+
+  # MQTT broker for IoT communications
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - heep-network
+    restart: unless-stopped
+
+networks:
+  heep-network:
+    driver: bridge
+
+volumes:
+  heep_data:
+  mongodb_data:
+  mosquitto_data:
+  mosquitto_log:
